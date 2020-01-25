@@ -49,10 +49,12 @@ void		trace_ray(t_param *p, t_vec3df d)
 	}
 	if (closest_sphere == 0)
 	{
-		SDL_SetRenderDrawColor(p->sdl.ren, 0, 0, 0, 0);
+		p->rgb = (t_rgb){0, 0, 0};
+		//SDL_SetRenderDrawColor(p->sdl.ren, 0, 0, 0, 0);
 		return ;
 	}
-	SDL_SetRenderDrawColor(p->sdl.ren, 255, 0, 240, 0);
+	p->rgb = (t_rgb){255, 0, 0};
+	//SDL_SetRenderDrawColor(p->sdl.ren, 255, 0, 240, 0);
 }
 
 void		ray_tracing(t_param *p)
@@ -70,7 +72,8 @@ void		ray_tracing(t_param *p)
 			d = (t_vec3df){x * (double)RATIO / WIDTH, y * 1.0 / HEIGHT, 1.0};
 			//d = (t_vec3df){(2.0 * ((x + 0.5) * (1.0 / WIDTH))) * ANGLE * RATIO, (2.0 * ((y + 0.5) * 1.0 / HEIGHT)) * ANGLE, 1.0};
 			trace_ray(p, d);
-			SDL_RenderDrawPoint(p->sdl.ren, x, y);
+			ft_pixel_put(p, x, y);
+			//SDL_RenderDrawPoint(p->sdl.ren, x, y);
 			y++;
 		}
 		x++;

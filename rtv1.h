@@ -70,14 +70,16 @@ typedef struct			s_sdl
 {
 	SDL_Window			*win;
 	SDL_Texture			*tex;
-	Uint32				*pixels;
+	unsigned char		*pixels;
 	int 				pitch;
 	SDL_Renderer		*ren;
 }						t_sdl;
 
 typedef struct			s_param
 {
+
 	struct s_sdl		sdl;
+	struct s_rgb		rgb;
 	struct s_cam		cam;
 }						t_param;
 
@@ -87,5 +89,6 @@ double			v_dotproduct(t_vec3df v1, t_vec3df v2);
 void			ray_tracing(t_param *p);
 t_vec3df		v_mul(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_add(t_vec3df v1, t_vec3df v2);
+void			ft_pixel_put(t_param *p, int x, int y);
 
 #endif
