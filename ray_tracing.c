@@ -27,34 +27,34 @@ t_vec2df	intersect_sphere(t_param *p, t_vec3df d, t_sphere sp)
 void		trace_ray(t_param *p, t_vec3df d)
 {
 	double		closest_t;
-	double		closest_sphere;
+	t_sphere	*closest_sphere;
 	t_vec2df	t;
-	t_sphere	sp;
+	t_sphere	*tmp;
 
-	sp.pos = (t_vec3df){0.5, 0.5, 0};
-	sp.radius = 1.1;
-	sp.color = (t_rgb){255, 0, 0};
+	tmp = p->obj.sp;
 	closest_t = INF;
-	closest_sphere = 0;
-	t = intersect_sphere(p, d, sp);
-	if (t.x > 1 && t.x < INF && t.x < closest_t)
+	closest_sphere = NULL;
+	while (tmp)
 	{
-		closest_t = t.x;
-		closest_sphere = 1;
+		t = intersect_sphere(p, d, *tmp);
+		if (t.x > 1 && t.x < INF && t.x < closest_t)
+		{
+			closest_t = t.x;
+			closest_sphere = tmp;
+		}
+		if (t.y > 1 && t.y < INF && t.y < closest_t)
+		{
+			closest_t = t.y;
+			closest_sphere = tmp;
+		}
+		tmp = tmp->next;
 	}
-	if (t.y > 1 && t.y < INF && t.y < closest_t)
+	if (closest_sphere == NULL)
 	{
-		closest_t = t.y;
-		closest_sphere = 1;
-	}
-	if (closest_sphere == 0)
-	{
-		p->rgb = (t_rgb){0, 0, 0};
-		//SDL_SetRenderDrawColor(p->sdl.ren, 0, 0, 0, 0);
+		p->color = 0x00;
 		return ;
 	}
-	p->rgb = (t_rgb){255, 0, 0};
-	//SDL_SetRenderDrawColor(p->sdl.ren, 255, 0, 240, 0);
+	p->color = closest_sphere->color;
 }
 
 void		ray_tracing(t_param *p)
@@ -70,6 +70,7 @@ void		ray_tracing(t_param *p)
 		while (y < HEIGHT)
 		{
 			d = (t_vec3df){x * (double)RATIO / WIDTH, y * 1.0 / HEIGHT, 1.0};
+			//d = (t_vec3df){x * 1.0 / WIDTH, y * 1.0 / HEIGHT, 1.0};
 			//d = (t_vec3df){(2.0 * ((x + 0.5) * (1.0 / WIDTH))) * ANGLE * RATIO, (2.0 * ((y + 0.5) * 1.0 / HEIGHT)) * ANGLE, 1.0};
 			trace_ray(p, d);
 			ft_pixel_put(p, x, y);
