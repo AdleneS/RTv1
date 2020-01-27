@@ -88,6 +88,7 @@ void		ray_tracing(t_param *p)
 			d.z = 1;
 			lala2(&d, ratio);
 			rot_x(p, &d);
+			rot_y(p, &d);
 			trace_ray(p, d);
 			ft_pixel_put(p, x, y);
 			//SDL_RenderDrawPoint(p->sdl.ren, x, y);

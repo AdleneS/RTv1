@@ -70,10 +70,14 @@ int main (int argc, char *argv[])
 					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 1, 0});
 				if (state[SDL_SCANCODE_SPACE])
 					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, -1, 0});
-				if (state[SDL_SCANCODE_A])
+				if (state[SDL_SCANCODE_R])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0.05,0, 0});
-				if (state[SDL_SCANCODE_E])
+				if (state[SDL_SCANCODE_F])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){-0.05, 0, 0});
+				if (state[SDL_SCANCODE_A])
+					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0, 0.05, 0});
+				if (state[SDL_SCANCODE_E])
+					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0, -0.05, 0});
 			}
 		}
 		ray_tracing(p);
