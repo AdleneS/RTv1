@@ -97,5 +97,6 @@ t_vec3df		v_add(t_vec3df v1, t_vec3df v2);
 void			ft_pixel_put(t_param *p, int x, int y);
 void			sphere_pushback(t_sphere **list, t_sphere sp, t_param *p);
 t_vec3df		v_normalize(t_vec3df v);
+void			rot_x(t_param *p, t_vec3df *d);
 
 #endif

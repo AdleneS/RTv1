@@ -64,7 +64,6 @@ void		lala2(t_vec3df *d, float ratio)
 	d->y = d->y * ANGLE;
 	d->z = 1;
 	*d = v_normalize(*d);
-	
 }
 
 void		ray_tracing(t_param *p)
@@ -88,6 +87,7 @@ void		ray_tracing(t_param *p)
 			d.y = y;
 			d.z = 1;
 			lala2(&d, ratio);
+			rot_x(p, &d);
 			trace_ray(p, d);
 			ft_pixel_put(p, x, y);
 			//SDL_RenderDrawPoint(p->sdl.ren, x, y);

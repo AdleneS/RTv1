@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
 	SDL_Init(SDL_INIT_VIDEO);
 
 	p->cam.pos = (t_vec3df){0.0, 0.0, -100.0};
-	p->cam.rot = (t_vec3df){1.0, 1.0, 1.0};
+	p->cam.rot = (t_vec3df){0.0, 0.0, 0.0};
 	p->sdl.win = SDL_CreateWindow("RTV1starfoulilaliloulala", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 	p->sdl.ren = SDL_CreateRenderer(p->sdl.win, -1, 0);
 	p->sdl.tex = SDL_CreateTexture(p->sdl.ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
@@ -56,23 +56,23 @@ int main (int argc, char *argv[])
 		{
 			if (event.type == SDL_QUIT)
 				break;
-			if (event.type == SDL_KEYDOWN)
+			if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
 			{
 				if (state[SDL_SCANCODE_D])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){5, 0, 0});
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){1, 0, 0});
 				if (state[SDL_SCANCODE_Q])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){-5, 0, 0});
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){-1, 0, 0});
 				if (state[SDL_SCANCODE_S])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, -5});
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, -1});
 				if (state[SDL_SCANCODE_Z])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, 5});
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, 1});
 				if (state[SDL_SCANCODE_LSHIFT])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 5, 0});
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 1, 0});
 				if (state[SDL_SCANCODE_SPACE])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, -5, 0});
-				if (event.key.keysym.sym == SDLK_a)
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, -1, 0});
+				if (state[SDL_SCANCODE_A])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0.05,0, 0});
-				if (event.key.keysym.sym == SDLK_e)
+				if (state[SDL_SCANCODE_E])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){-0.05, 0, 0});
 			}
 		}
