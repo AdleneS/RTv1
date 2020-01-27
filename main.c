@@ -63,12 +63,12 @@ int main (int argc, char *argv[])
 				if (state[SDL_SCANCODE_Q])
 					p->cam.pos = v_add(p->cam.pos, (t_vec3df){-5, 0, 0});
 				if (state[SDL_SCANCODE_S])
-					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, 5});
-				if (state[SDL_SCANCODE_Z])
 					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, -5});
-				if (event.key.keysym.sym == SDLK_LSHIFT)
+				if (state[SDL_SCANCODE_Z])
+					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 0, 5});
+				if (state[SDL_SCANCODE_LSHIFT])
 					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, 5, 0});
-				if (event.key.keysym.sym == SDLK_SPACE)
+				if (state[SDL_SCANCODE_SPACE])
 					p->cam.pos = v_add(p->cam.pos, (t_vec3df){0, -5, 0});
 				if (event.key.keysym.sym == SDLK_a)
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0.05,0, 0});
