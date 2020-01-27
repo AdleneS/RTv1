@@ -1,17 +1,16 @@
 #ifndef RTV1_H
 # define RTV1_H
 
-# include "include\SDL2\SDL.h"
+# include "SDL.h"
 # include <stdio.h>
 # include <math.h>
 
 # define WIDTH 800
-# define HEIGHT 800
+# define HEIGHT 450
 # define INF 10^8
-# define RATIO WIDTH / HEIGHT
 # define FOV 30
 # define PI 3.14
-# define ANGLE tan(PI * 0.5 * FOV / 180.0)
+# define ANGLE tan((FOV / 2) * M_PI / 180.0)
 
 typedef struct			s_vec2d
 {
@@ -97,5 +96,6 @@ t_vec3df		v_mul(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_add(t_vec3df v1, t_vec3df v2);
 void			ft_pixel_put(t_param *p, int x, int y);
 void			sphere_pushback(t_sphere **list, t_sphere sp, t_param *p);
+t_vec3df		v_normalize(t_vec3df v);
 
 #endif

@@ -1,6 +1,6 @@
 #include "rtv1.h"
 
-t_vec2df	intersect_sphere(t_param *p, t_vec3df d, t_sphere sp)
+float	intersect_sphere(t_param *p, t_vec3df d, t_sphere *sp)
 {
 	t_vec3df	oc;
 	double		k1;
@@ -9,42 +9,39 @@ t_vec2df	intersect_sphere(t_param *p, t_vec3df d, t_sphere sp)
 	double		t1;
 	double		t2;
 	double		discriminant;
+	float		di;
 
-	oc = v_sub(p->cam.pos, sp.pos);
+	oc = v_sub(p->cam.pos, sp->pos);
 	k1 = v_dotproduct(d, d);
 	k2 = 2 * v_dotproduct(oc, d);
-	k3 = v_dotproduct(oc,oc) - sp.radius * sp.radius;
+	k3 = v_dotproduct(oc, oc) - (sp->radius * sp->radius);
 
 	discriminant = k2 * k2 - 4.0 * k1 * k3;
 
 	if (discriminant < 0)
-		return ((t_vec2df){INF, INF});
-	t1 = (-k2 + sqrt(discriminant)) / (2.0 * k1);
-	t2 = (-k2 - sqrt(discriminant)) / (2.0 * k1);
-	return ((t_vec2df){t1, t2});
+		return (-1);
+	t1 = (-k2 + sqrt(discriminant)) * .5;
+	t2 = (-k2 - sqrt(discriminant)) * .5;
+
+	di = fminf(t1, t2);
+	return (di);
 }
 
 void		trace_ray(t_param *p, t_vec3df d)
 {
-	double		closest_t;
 	t_sphere	*closest_sphere;
-	t_vec2df	t;
 	t_sphere	*tmp;
+	float		dis;
+	float		t;
 
+	dis = INFINITY;
 	tmp = p->obj.sp;
-	closest_t = INF;
 	closest_sphere = NULL;
 	while (tmp)
 	{
-		t = intersect_sphere(p, d, *tmp);
-		if (t.x > 1 && t.x < INF && t.x < closest_t)
+		if ((t = intersect_sphere(p, d, tmp)) > 0 && t < dis)
 		{
-			closest_t = t.x;
-			closest_sphere = tmp;
-		}
-		if (t.y > 1 && t.y < INF && t.y < closest_t)
-		{
-			closest_t = t.y;
+			dis = t;
 			closest_sphere = tmp;
 		}
 		tmp = tmp->next;
@@ -57,21 +54,40 @@ void		trace_ray(t_param *p, t_vec3df d)
 	p->color = closest_sphere->color;
 }
 
+void		lala2(t_vec3df *d, float ratio)
+{
+	d->x = (d->x + .5) / WIDTH;
+	d->y = (d->y + .5) / HEIGHT;
+	d->x = 2 * d->x - 1;
+	d->y = 1 - 2 * d->y;
+	d->x = d->x * ANGLE * ratio;
+	d->y = d->y * ANGLE;
+	d->z = 1;
+	*d = v_normalize(*d);
+	
+}
+
 void		ray_tracing(t_param *p)
 {
 	int			x;
 	int			y;
 	t_vec3df	d;
+	float		ratio;
 
+	ratio = WIDTH / (float)HEIGHT;
 	x = 0;
 	while (x < WIDTH )
 	{
 		y = 0;
 		while (y < HEIGHT)
 		{
-			d = (t_vec3df){x * (double)RATIO / WIDTH, y * 1.0 / HEIGHT, 1.0};
-			//d = (t_vec3df){x * 1.0 / WIDTH, y * 1.0 / HEIGHT, 1.0};
-			//d = (t_vec3df){(2.0 * ((x + 0.5) * (1.0 / WIDTH))) * ANGLE * RATIO, (2.0 * ((y + 0.5) * 1.0 / HEIGHT)) * ANGLE, 1.0};
+			// d = (t_vec3df){x * (double)RATIO / WIDTH, y * 1.0 / HEIGHT, 1.0};
+
+			// d = (t_vec3df){x * 1.0 / WIDTH, y * 1.0 / HEIGHT, 1.0};
+			d.x = x;
+			d.y = y;
+			d.z = 1;
+			lala2(&d, ratio);
 			trace_ray(p, d);
 			ft_pixel_put(p, x, y);
 			//SDL_RenderDrawPoint(p->sdl.ren, x, y);
