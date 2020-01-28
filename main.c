@@ -2,11 +2,17 @@
 
 void	ft_pixel_put(t_param *p, int x, int y)
 {
-	int i;
+	int			i;
+	uint32_t	color;
+	
 	i = (WIDTH * y) + x;
+	color = rgb_to_hex(p->color);
 	
 	if ((x >= 0 && x < WIDTH) && (y >= 0 && y < HEIGHT))
-		p->sdl.pixels[i] = p->color;
+	{
+		p->sdl.pixels[i] = color;
+
+	}
 }
 
 void		addsphere(t_param *p)
@@ -15,23 +21,28 @@ void		addsphere(t_param *p)
 	t_sphere		sp2;
 	t_sphere		sp3;
 	t_sphere		sp4;
+	t_light			light;
 
 	sp1.pos = (t_vec3df){0., 0., -50};
 	sp1.radius = 3;
-	sp1.color = 0xFF0000;
-	sp2.pos = (t_vec3df){0, 0., 50};
+	sp1.color = (t_rgb){255, 0, 0, 255};
+	sp2.pos = (t_vec3df){0.0, 0.0, 50};
 	sp2.radius = 3;
-	sp2.color = 0x00FF00;
-	sp3.pos = (t_vec3df){1.5, 0.8, 0};
+	sp2.color =(t_rgb){0, 255, 0, 255};
+	sp3.pos = (t_vec3df){0.0, 0.8, 0.0};
 	sp3.radius = 5;
-	sp3.color = 0x0000FF;
-	sp4.pos = (t_vec3df){0.0, 0.0, 0.0};
-	sp4.radius = 100;
-	sp4.color = 0xFFFFFF;
-	sphere_pushback(&p->obj.sp, sp1, p);
-	sphere_pushback(&p->obj.sp, sp2, p);
-	sphere_pushback(&p->obj.sp, sp3, p);
-	sphere_pushback(&p->obj.sp, sp4, p);
+	sp3.color = (t_rgb){0, 0, 255, 255};
+	sp4.pos = (t_vec3df){0.0, -50.0, 0.0};
+	sp4.radius = 25;
+	sp4.color = (t_rgb){255, 255, 255, 255};
+	light.pos = (t_vec3df){0.0, 15.0, 0.0};
+	light.color = (t_rgb){255, 255, 255, 255};
+	light.intensity = 1.0;
+	light_push(&p->light, light, p);
+	sphere_push(&p->obj.sp, sp1, p);
+	sphere_push(&p->obj.sp, sp2, p);
+	sphere_push(&p->obj.sp, sp3, p);
+	sphere_push(&p->obj.sp, sp4, p);
 
 }
 

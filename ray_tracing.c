@@ -1,6 +1,6 @@
 #include "rtv1.h"
 
-float	intersect_sphere(t_param *p, t_vec3df d, t_sphere *sp)
+float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t)
 {
 	t_vec3df	oc;
 	double		k1;
@@ -9,9 +9,9 @@ float	intersect_sphere(t_param *p, t_vec3df d, t_sphere *sp)
 	double		t1;
 	double		t2;
 	double		discriminant;
-	float		di;
+	double		min;
 
-	oc = v_sub(p->cam.pos, sp->pos);
+	oc = v_sub(origin, sp->pos);
 	k1 = v_dotproduct(d, d);
 	k2 = 2 * v_dotproduct(oc, d);
 	k3 = v_dotproduct(oc, oc) - (sp->radius * sp->radius);
@@ -22,9 +22,12 @@ float	intersect_sphere(t_param *p, t_vec3df d, t_sphere *sp)
 		return (-1);
 	t1 = (-k2 + sqrt(discriminant)) * .5;
 	t2 = (-k2 - sqrt(discriminant)) * .5;
-
-	di = fminf(t1, t2);
-	return (di);
+	min = fminf(t1, t2);
+	if (min > min_t)
+		return (min);
+	else
+		return (-1);
+	
 }
 
 void		trace_ray(t_param *p, t_vec3df d)
@@ -33,25 +36,47 @@ void		trace_ray(t_param *p, t_vec3df d)
 	t_sphere	*tmp;
 	float		dis;
 	float		t;
+	t_vec3df	shadow;
+	t_vec3df	phit;
+	t_vec3df	nhit;
 
 	dis = INFINITY;
 	tmp = p->obj.sp;
 	closest_sphere = NULL;
 	while (tmp)
 	{
-		if ((t = intersect_sphere(p, d, tmp)) > 0 && t < dis)
+		if ((t = intersect_sphere(p->cam.pos, d, tmp, 0)) > 0 && t < dis)
 		{
 			dis = t;
 			closest_sphere = tmp;
+			phit = v_add(p->cam.pos, v_mulk(d, t));
+			nhit = v_sub(phit, tmp->pos);
 		}
 		tmp = tmp->next;
 	}
 	if (closest_sphere == NULL)
 	{
-		p->color = 0x00;
+		p->color = (t_rgb){0, 0, 0, 0};
 		return ;
 	}
-	p->color = closest_sphere->color;
+	shadow = v_sub(p->light->pos, phit);
+	v_normalize(&shadow);
+	tmp = p->obj.sp;
+	while (tmp)
+	{
+		if (t = intersect_sphere(phit, shadow, tmp, 0.01) > 0)
+		{
+			p->color = (t_rgb){0, 0, 0, 0};
+			break ;
+		}
+		else
+		{
+			//mult_color(&closest_sphere->color, p->light->intensity);
+			p->color = closest_sphere->color;
+		}
+		tmp = tmp->next;
+	}
+	//p->color = closest_sphere->color;
 }
 
 void		lala2(t_vec3df *d, float ratio)
@@ -63,7 +88,7 @@ void		lala2(t_vec3df *d, float ratio)
 	d->x = d->x * ANGLE * ratio;
 	d->y = d->y * ANGLE;
 	d->z = 1;
-	*d = v_normalize(*d);
+	v_normalize(d);
 }
 
 void		ray_tracing(t_param *p)

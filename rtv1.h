@@ -36,13 +36,14 @@ typedef struct			s_rgb
 	unsigned int		r;
 	unsigned int		g;
 	unsigned int		b;
+	unsigned int		a;
 }						t_rgb;
 
 typedef struct			s_sphere
 {
 	struct s_vec3df		pos;
 	double				radius;
-	uint32_t			color;
+	struct s_rgb		color;
 	struct s_sphere		*next;
 }						t_sphere;
 
@@ -50,6 +51,14 @@ typedef struct			s_obj
 {
 	struct s_sphere		*sp;
 }						t_obj;
+
+typedef struct			s_light
+{
+	struct s_vec3df		pos;
+	struct s_rgb		color;
+	unsigned int		intensity;
+	struct s_light		*next;
+}						t_light;
 
 typedef struct			s_cam
 {
@@ -83,9 +92,10 @@ typedef struct			s_sdl
 typedef struct			s_param
 {
 	struct s_sdl		sdl;
-	uint32_t			color;
+	struct s_rgb		color;
 	struct s_cam		cam;
 	struct s_obj		obj;
+	struct s_light		*light;
 }						t_param;
 
 
@@ -95,9 +105,14 @@ void			ray_tracing(t_param *p);
 t_vec3df		v_mul(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_add(t_vec3df v1, t_vec3df v2);
 void			ft_pixel_put(t_param *p, int x, int y);
-void			sphere_pushback(t_sphere **list, t_sphere sp, t_param *p);
-t_vec3df		v_normalize(t_vec3df v);
+void			sphere_push(t_sphere **list, t_sphere sp, t_param *p);
+void			v_normalize(t_vec3df *v);
 void			rot_x(t_param *p, t_vec3df *d);
 void			rot_y(t_param *p, t_vec3df *d);
+void			light_push(t_light **list, t_light light, t_param *p);
+t_vec3df		v_sub(t_vec3df v1, t_vec3df v2);
+t_vec3df		v_mulk(t_vec3df v1, double k);
+void			mult_color(t_rgb *color, int k);
+uint32_t		rgb_to_hex(t_rgb color);
 
 #endif
