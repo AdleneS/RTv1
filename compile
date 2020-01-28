@@ -1,1 +1,3 @@
 gcc -Iinclude -Iinclude/SDL2 -L.\lib\ .\*.c -lmingw32 -lSDL2main -lSDL2 -O3 -flto -march=native --fast-math -o a.exe
+
+gcc *.c -framework SDL2 -I./include/SDL2 -O3 -march=native -flto -o lala && ./lala
