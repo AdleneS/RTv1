@@ -30,16 +30,16 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t)
 	
 }
 
-float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit)
+float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 {
 	t_light		*tmp;
 	float		intensity;
 	float		dot;
 	t_vec3df	vec_l;
 	float		n_lenght;
-	t_sphere	*tmp1;
 	t_vec3df	shadow;
 	float		t;
+	t_sphere	*tmp1;
 
 	tmp = p->light;
 	n_lenght = v_length(nhit);
@@ -53,16 +53,16 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit)
 			vec_l = v_sub(tmp->pos, phit);
 		else if (tmp->type == 3)
 			vec_l = tmp->pos;
-		dot = v_dotproduct(nhit, vec_l);
-		if (dot > 0)
-			intensity += tmp->intensity * dot / (n_lenght * v_length(vec_l));
 		tmp1 = p->obj.sp;
+		v_normalize(&vec_l);
 		while (tmp1)
 		{
-			shadow = v_sub(tmp->pos, phit);
-			v_normalize(&shadow);
-			if ((t = intersect_sphere(phit, shadow, tmp1, 0.01)) > 0)
-				return (0);
+			if (((t = intersect_sphere(phit, vec_l, tmp1, 0.01))) < 0)
+			{
+				dot = v_dotproduct(nhit, vec_l);
+				if (dot > 0)
+					intensity += tmp->intensity * dot / (n_lenght * v_length(vec_l));
+			}
 			tmp1 = tmp1->next;
 		}
 		tmp = tmp->next;
@@ -92,20 +92,21 @@ void		trace_ray(t_param *p, t_vec3df d)
 			phit = v_add(p->cam.pos, v_mulk(d, t));
 			nhit = v_sub(phit, closest_sphere->pos);
 			nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
+
 		}
 		tmp = tmp->next;
 	}
-
 	if (closest_sphere == NULL)
 	{
 		p->color = (t_rgb){0, 0, 0, 0};
 		return ;
 	}
+	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit, tmp));
 	//else
 	//{
 	//	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
 	//}
-	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
+	//p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit, closest_sphere));
 
 	//p->color = closest_sphere->color;
 }
