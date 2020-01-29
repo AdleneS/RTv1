@@ -33,10 +33,10 @@ typedef struct			s_vec3df
 
 typedef struct			s_rgb
 {
-	unsigned int		r;
-	unsigned int		g;
-	unsigned int		b;
-	unsigned int		a;
+	float				r;
+	float				g;
+	float				b;
+	float				a;
 }						t_rgb;
 
 typedef struct			s_sphere
@@ -56,7 +56,8 @@ typedef struct			s_light
 {
 	struct s_vec3df		pos;
 	struct s_rgb		color;
-	unsigned int		intensity;
+	float				intensity;
+	unsigned int		type;
 	struct s_light		*next;
 }						t_light;
 
@@ -112,7 +113,8 @@ void			rot_y(t_param *p, t_vec3df *d);
 void			light_push(t_light **list, t_light light, t_param *p);
 t_vec3df		v_sub(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_mulk(t_vec3df v1, double k);
-void			mult_color(t_rgb *color, int k);
+t_rgb			mult_color(t_rgb color, double k);
 uint32_t		rgb_to_hex(t_rgb color);
+double			v_length(t_vec3df v);
 
 #endif

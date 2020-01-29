@@ -41,20 +41,31 @@ t_vec3df		v_div(t_vec3df v1, double k)
 
 uint32_t		rgb_to_hex(t_rgb color)
 {
-	return (color.a << 24 | color.r << 16 | color.g << 8 | color.b);
-	//return (((color.r >> 24) & 0xff) * 0x01000000 + ((color.g >> 16) & 0xff) * 0x010000 + ((color.b >> 8) & 0xff) * 0x0100 + (color.a & 0xff));
+	color.r = max(0.0, color.r);
+	color.g = max(0.0, color.g);
+	color.b = max(0.0, color.b);
+	color.a = max(0.0, color.a);
+	color.r = min(1.0, color.r);
+	color.g = min(1.0, color.g);
+	color.b = min(1.0, color.b);
+	color.a = min(1.0, color.a);
+	color.r *= 255;
+	color.g *= 255;
+	color.b *= 255;
+	color.a *= 255;
+	return ((int)color.a << 24 | (int)color.r << 16 | (int)color.g << 8 | (int)color.b);
 }
 
-void			mult_color(t_rgb *color, int k)
+t_rgb			mult_color(t_rgb color, double k)
 {
-	//uint32_t uu;
-//
-	//uu = 0xa00001;
-	//printf("%d %d %d %d\n", (uu >> 24 & 0xff), (uu >> 16 & 0xff) , (uu >> 8 & 0xff), (uu & 0xff));
-	//printf("%#08x\n", ((uu >> 24 & 0xff) * 0x01000000) + ((uu >> 16 & 0xff) * 0x010000) + ((uu >> 8 & 0xff) * 0x0100) + ((uu & 0xff)));
-	//printf("%#08x\n", 65738);
-	//*hex = (((*hex >> 24) & 0xff) * 0x01000000) * k + (((*hex >> 16) & 0xff) * 0x010000) * k + (((*hex >> 8) & 0xff) * 0x0100) * k + ((*hex & 0xff)) * k;
-	*color = (t_rgb){(color->r * k), (color->g * k), (color->b * k), (color->a * k)};
+	t_rgb		tmp;
+
+	tmp = color;
+	tmp.r /= 255;
+	tmp.g /= 255;
+	tmp.b /= 255;
+	tmp.a /= 255;
+	return ((t_rgb){(tmp.r * k), (tmp.g * k), (tmp.b * k), (tmp.a * k)});
 }
 
 void			rot_x(t_param *p, t_vec3df *d)

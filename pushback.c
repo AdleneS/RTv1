@@ -29,6 +29,7 @@ void		light_push(t_light **list, t_light light, t_param *p)
 	new->pos = light.pos;
 	new->color = light.color;
 	new->intensity = light.intensity;
+	new->type = light.type;
 	new->next = NULL;
 	if (!*list)
 		*list = new;

@@ -30,6 +30,46 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t)
 	
 }
 
+float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit)
+{
+	t_light		*tmp;
+	float		intensity;
+	float		dot;
+	t_vec3df	vec_l;
+	float		n_lenght;
+	t_sphere	*tmp1;
+	t_vec3df	shadow;
+	float		t;
+
+	tmp = p->light;
+	n_lenght = v_length(nhit);
+	intensity = 0;
+	vec_l = (t_vec3df){0, 0, 0};
+	while (tmp)
+	{
+		if (tmp->type == 1)
+			intensity += tmp->intensity;
+		else if (tmp->type == 2)
+			vec_l = v_sub(tmp->pos, phit);
+		else if (tmp->type == 3)
+			vec_l = tmp->pos;
+		dot = v_dotproduct(nhit, vec_l);
+		if (dot > 0)
+			intensity += tmp->intensity * dot / (n_lenght * v_length(vec_l));
+		tmp1 = p->obj.sp;
+		while (tmp1)
+		{
+			shadow = v_sub(tmp->pos, phit);
+			v_normalize(&shadow);
+			if ((t = intersect_sphere(phit, shadow, tmp1, 0.01)) > 0)
+				return (0);
+			tmp1 = tmp1->next;
+		}
+		tmp = tmp->next;
+	}
+	return (intensity);
+}
+
 void		trace_ray(t_param *p, t_vec3df d)
 {
 	t_sphere	*closest_sphere;
@@ -45,37 +85,28 @@ void		trace_ray(t_param *p, t_vec3df d)
 	closest_sphere = NULL;
 	while (tmp)
 	{
-		if ((t = intersect_sphere(p->cam.pos, d, tmp, 0)) > 0 && t < dis)
+		if (((t = intersect_sphere(p->cam.pos, d, tmp, 0)) > 0) && t < dis)
 		{
 			dis = t;
 			closest_sphere = tmp;
 			phit = v_add(p->cam.pos, v_mulk(d, t));
-			nhit = v_sub(phit, tmp->pos);
+			nhit = v_sub(phit, closest_sphere->pos);
+			nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
 		}
 		tmp = tmp->next;
 	}
+
 	if (closest_sphere == NULL)
 	{
 		p->color = (t_rgb){0, 0, 0, 0};
 		return ;
 	}
-	shadow = v_sub(p->light->pos, phit);
-	v_normalize(&shadow);
-	tmp = p->obj.sp;
-	while (tmp)
-	{
-		if (t = intersect_sphere(phit, shadow, tmp, 0.01) > 0)
-		{
-			p->color = (t_rgb){0, 0, 0, 0};
-			break ;
-		}
-		else
-		{
-			//mult_color(&closest_sphere->color, p->light->intensity);
-			p->color = closest_sphere->color;
-		}
-		tmp = tmp->next;
-	}
+	//else
+	//{
+	//	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
+	//}
+	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
+
 	//p->color = closest_sphere->color;
 }
 

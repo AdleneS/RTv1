@@ -1,4 +1,4 @@
-#include "rtv1.h"
+ #include "rtv1.h"
 
 void	ft_pixel_put(t_param *p, int x, int y)
 {
@@ -22,28 +22,40 @@ void		addsphere(t_param *p)
 	t_sphere		sp3;
 	t_sphere		sp4;
 	t_light			light;
+	t_light			light2;
+	t_light			light3;
 
 	sp1.pos = (t_vec3df){0., 0., -50};
 	sp1.radius = 3;
-	sp1.color = (t_rgb){255, 0, 0, 255};
-	sp2.pos = (t_vec3df){0.0, 0.0, 50};
+	sp1.color = (t_rgb){255, 100, 100, 255};
+	sp2.pos = (t_vec3df){50.0, 0.0, 50};
 	sp2.radius = 3;
 	sp2.color =(t_rgb){0, 255, 0, 255};
 	sp3.pos = (t_vec3df){0.0, 0.8, 0.0};
 	sp3.radius = 5;
-	sp3.color = (t_rgb){0, 0, 255, 255};
-	sp4.pos = (t_vec3df){0.0, -50.0, 0.0};
+	sp3.color = (t_rgb){1, 1, 255, 255};
+	sp4.pos = (t_vec3df){50, -10.0, 0.0};
 	sp4.radius = 25;
 	sp4.color = (t_rgb){255, 255, 255, 255};
-	light.pos = (t_vec3df){0.0, 15.0, 0.0};
+	light.pos = (t_vec3df){-100, 10.0, 0.0};
 	light.color = (t_rgb){255, 255, 255, 255};
-	light.intensity = 1.0;
+	light.intensity = 0.3;
+	light.type = 2;
+	light2.pos = (t_vec3df){100.0, 100.0, 0.0};
+	light2.color = (t_rgb){255, 255, 255, 255};
+	light2.intensity = 0.2;
+	light2.type = 2;
+	light3.pos = (t_vec3df){50.0, 50, 150.0};
+	light3.color = (t_rgb){255, 255, 255, 255};
+	light3.intensity = 0.4;
+	light3.type = 2;
+	light_push(&p->light, light2, p);
+	light_push(&p->light, light3, p);
 	light_push(&p->light, light, p);
 	sphere_push(&p->obj.sp, sp1, p);
 	sphere_push(&p->obj.sp, sp2, p);
 	sphere_push(&p->obj.sp, sp3, p);
 	sphere_push(&p->obj.sp, sp4, p);
-
 }
 
 int main (int argc, char *argv[])
