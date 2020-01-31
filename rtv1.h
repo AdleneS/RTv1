@@ -43,6 +43,7 @@ typedef struct			s_sphere
 {
 	struct s_vec3df		pos;
 	double				radius;
+	double				spe;
 	struct s_rgb		color;
 	struct s_sphere		*next;
 }						t_sphere;

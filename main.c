@@ -27,15 +27,19 @@ void		addsphere(t_param *p)
 
 	sp1.pos = (t_vec3df){20, 0.8, 0};
 	sp1.radius = 3;
+	sp1.spe = 100;
 	sp1.color = (t_rgb){255, 100, 100, 255};
 	sp2.pos = (t_vec3df){50, 5.0, 50};
 	sp2.radius = 3;
+	sp2.spe = -1;
 	sp2.color = (t_rgb){0, 255, 0, 255};
 	sp3.pos = (t_vec3df){0.0, 10.0, 0.0};
 	sp3.radius = 5;
+	sp3.spe = -1;
 	sp3.color = (t_rgb){1, 1, 255, 255};
 	sp4.pos = (t_vec3df){50, -10.0, 0.0};
 	sp4.radius = 25;
+	sp4.spe = 500;
 	sp4.color = (t_rgb){255, 255, 255, 255};
 	light.pos = (t_vec3df){10, 5.0, 0};
 	light.color = (t_rgb){255, 255, 255, 255};
@@ -43,7 +47,7 @@ void		addsphere(t_param *p)
 	light.type = 2;
 	light2.pos = (t_vec3df){-100.0, 10.0, 20.0};
 	light2.color = (t_rgb){255, 255, 255, 255};
-	light2.intensity = 0.2;
+	light2.intensity = 0.07;
 	light2.type = 2;
 	light3.pos = (t_vec3df){50.0, 50, 150.0};
 	light3.color = (t_rgb){255, 255, 255, 255};
@@ -109,7 +113,6 @@ int main (int argc, char *argv[])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0, 0.05, 0});
 				if (state[SDL_SCANCODE_Q])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0, -0.05, 0});
-				
 			}
 			rot_x(p, &move);
 			rot_y(p, &move);

@@ -9,6 +9,7 @@ void		sphere_push(t_sphere **list, t_sphere sp, t_param *p)
 	new->pos = sp.pos;
 	new->radius = sp.radius;
 	new->color = sp.color;
+	new->spe = sp.spe;
 	new->next = !*list ? NULL : *list;
 	*list = new;
 }
