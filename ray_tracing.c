@@ -1,6 +1,6 @@
 #include "rtv1.h"
 
-float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t)
+float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, float max_t)
 {
 	t_vec3df	oc;
 	double		k1;
@@ -23,14 +23,14 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t)
 	t1 = (-k2 + sqrt(discriminant)) * .5;
 	t2 = (-k2 - sqrt(discriminant)) * .5;
 	min = fminf(t1, t2);
-	if (min > min_t)
+	if (min > min_t && min < max_t)
 		return (min);
 	else
 		return (-1);
 	
 }
 
-float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
+float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit)
 {
 	t_light		*tmp;
 	float		intensity;
@@ -55,9 +55,10 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 			vec_l = tmp->pos;
 		tmp1 = p->obj.sp;
 		v_normalize(&vec_l);
+		//printf("%f\n", n_lenght);
 		while (tmp1)
 		{
-			if (((t = intersect_sphere(phit, vec_l, tmp1, 0.01))) < 0)
+			if (((t = intersect_sphere(phit, vec_l, tmp1, 0.01, v_length(tmp->pos)))) < 0)
 			{
 				dot = v_dotproduct(nhit, vec_l);
 				if (dot > 0)
@@ -85,7 +86,7 @@ void		trace_ray(t_param *p, t_vec3df d)
 	closest_sphere = NULL;
 	while (tmp)
 	{
-		if (((t = intersect_sphere(p->cam.pos, d, tmp, 0)) > 0) && t < dis)
+		if (((t = intersect_sphere(p->cam.pos, d, tmp, 0, INFINITY)) > 0) && t < dis)
 		{
 			dis = t;
 			closest_sphere = tmp;
@@ -101,7 +102,8 @@ void		trace_ray(t_param *p, t_vec3df d)
 		p->color = (t_rgb){0, 0, 0, 0};
 		return ;
 	}
-	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit, tmp));
+	// printf("%f\n", closest_sphere->color.r);
+	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
 	//else
 	//{
 	//	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
