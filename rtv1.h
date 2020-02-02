@@ -44,8 +44,6 @@ typedef struct			s_sphere
 	struct s_vec3df		pos;
 	double				radius;
 	double				spe;
-	struct s_rgb		color;
-	struct s_sphere		*next;
 }						t_sphere;
 
 typedef struct			s_plane
@@ -53,14 +51,18 @@ typedef struct			s_plane
 	struct s_vec3df		pos;
 	struct s_vec3df		n;
 	double				spe;
-	struct s_rgb		color;
 	struct s_plane		*next;
 }						t_plane;
 
 typedef struct			s_obj
 {
-	struct s_sphere		*sp;
-	struct s_plane		*pl;
+	int					type;
+	void				*data;
+	struct s_rgb		color;
+	struct s_obj		*next;
+
+	//struct s_sphere		*sp;
+	//struct s_plane		*pl;
 }						t_obj;
 
 typedef struct			s_light
@@ -106,7 +108,7 @@ typedef struct			s_param
 	struct s_sdl		sdl;
 	struct s_rgb		color;
 	struct s_cam		cam;
-	struct s_obj		obj;
+	struct s_obj		*obj;
 	struct s_light		*light;
 }						t_param;
 
@@ -118,7 +120,7 @@ t_vec3df		v_mul(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_add(t_vec3df v1, t_vec3df v2);
 void			ft_pixel_put(t_param *p, int x, int y);
 void			sphere_push(t_sphere **list, t_sphere sp, t_param *p);
-void			v_normalize(t_vec3df *v);
+t_vec3df		v_normalize(t_vec3df v);
 void			rot_x(t_param *p, t_vec3df *d);
 void			rot_y(t_param *p, t_vec3df *d);
 void			light_push(t_light **list, t_light light, t_param *p);
@@ -128,5 +130,6 @@ t_rgb			mult_color(t_rgb color, double k);
 uint32_t		rgb_to_hex(t_rgb color);
 double			v_length(t_vec3df v);
 void			plane_push(t_plane **list, t_plane pl, t_param *p);
+void		obj_push(int type, t_obj **list, void *data, t_rgb color);
 
 #endif

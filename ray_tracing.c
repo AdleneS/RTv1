@@ -17,7 +17,6 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, f
 	k3 = v_dotproduct(oc, oc) - (sp->radius * sp->radius);
 
 	discriminant = k2 * k2 - 4.0 * k1 * k3;
-
 	if (discriminant < 0)
 		return (-1);
 	t1 = (-k2 + sqrt(discriminant)) * .5;
@@ -41,7 +40,7 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 	float		n_lenght;
 	t_vec3df	shadow;
 	float		t;
-	t_sphere	*tmp1;
+	t_obj		*tmp1;
 
 	tmp = p->light;
 	n_lenght = v_length(nhit);
@@ -55,23 +54,22 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 			vec_l = v_sub(tmp->pos, phit);
 		else if (tmp->type == 3)
 			vec_l = tmp->pos;
-		tmp1 = p->obj.sp;
-		v_normalize(&vec_l);
+		vec_l = v_normalize(vec_l);
 		if (sp->spe != -1)
 		{
 			vec_r = v_sub(v_mulk(nhit, (2.0 * v_dotproduct(nhit, vec_l))), vec_l);
 			r_dot_v = v_dotproduct(vec_r, p->cam.pos);
 			if (r_dot_v > 0)
-				intensity += tmp->intensity * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), tmp1->spe);
+				intensity += tmp->intensity * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), sp->spe);
 		}
+		tmp1 = p->obj;
 		while (tmp1)
 		{
-			if (((t = intersect_sphere(phit, vec_l, tmp1, 0.01, v_length(tmp->pos)))) < 0)
+			if (((t = intersect_sphere(phit, vec_l, ((t_sphere*)tmp1->data), 0.01, v_length(tmp->pos)))) < 0)
 			{
 				dot = v_dotproduct(nhit, vec_l);
 				if (dot > 0)
 					intensity += tmp->intensity * dot / (n_lenght * v_length(vec_l));
-
 			}
 			tmp1 = tmp1->next;
 		}
@@ -82,22 +80,37 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 
 double		intersect_plane(t_plane *pl, t_vec3df d, t_param *p)
 {
-	double	denom;
-	double	t;
+	double		denom;
+	double		t;
+	t_vec3df	diff;
 
 	denom = v_dotproduct(pl->n, d);
-	if (denom > 0)
+	if (fabs(denom) > 0.0001)
 	{
-		t = v_dotproduct(v_sub(pl->pos, p->cam.pos), pl->n) / denom;
-		return (t >= 0);
+		diff = v_sub(pl->pos, p->cam.pos);
+		diff = v_normalize(diff);
+		t = v_dotproduct(diff, pl->n) / denom;
+		if (t > 0.0001)
+			return (t);
 	}
-	return (0);
+	return (-1);
+
+	//double	t;
+	//double	a;
+	//double	b;
+//
+	//a = v_dotproduct(v_sub(p->cam.pos, pl->pos), pl->n);
+	//b = v_dotproduct(d, pl->n);
+	//if (b == 0 || (a < 0 && b < 0) || (a > 0 && b > 0))
+	//	return (-1);
+	//t = -a / b;
+	//return (t > 0 ? t : -1);
 }
 
 void		trace_ray(t_param *p, t_vec3df d)
 {
-	t_sphere	*closest_sphere;
-	t_sphere	*tmp;
+	t_obj		*closest;
+	t_obj		*tmp;
 	float		dis;
 	float		t;
 	t_vec3df	shadow;
@@ -105,35 +118,46 @@ void		trace_ray(t_param *p, t_vec3df d)
 	t_vec3df	nhit;
 
 	dis = INFINITY;
-	tmp = p->obj.sp;
-	closest_sphere = NULL;
+	tmp = p->obj;
+	closest = NULL;
 	while (tmp)
 	{
-		if (((t = intersect_sphere(p->cam.pos, d, tmp, 0, INFINITY)) > 0) && t < dis)
+		if (tmp->type == 1)
 		{
-			dis = t;
-			closest_sphere = tmp;
-			phit = v_add(p->cam.pos, v_mulk(d, t));
-			nhit = v_sub(phit, closest_sphere->pos);
-			nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
-
+			if (((t = intersect_sphere(p->cam.pos, d, ((t_sphere*)tmp->data), 0, INFINITY)) > 0) && t < dis)
+			{
+				dis = t;
+				closest = tmp;
+				phit = v_add(p->cam.pos, v_mulk(d, t));
+				nhit = v_sub(phit, ((t_sphere*)closest->data)->pos);
+				nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
+			}
+		}
+		if (tmp->type == 2)
+		{
+			if (t = intersect_plane(((t_plane*)tmp->data), d, p) > 0 && t < dis)
+			{
+				dis = t;
+				closest = tmp;
+				phit = v_add(p->cam.pos, v_mulk(d, t));
+				nhit = ((t_plane*)closest->data)->n;
+				//nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
+			}
 		}
 		tmp = tmp->next;
 	}
-	if (closest_sphere == NULL)
+	if (closest == NULL)
 	{
 		p->color = (t_rgb){0, 0, 0, 0};
 		return ;
 	}
-	// printf("%f\n", closest_sphere->color.r);
-	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit, closest_sphere));
+	//p->color = mult_color(closest->color, compute_light(p, phit, nhit, ((t_sphere*)closest->data)));
 	//else
 	//{
-	//	p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit));
+	////p->color = mult_color(closest->color, compute_light(p, phit, nhit));
 	//}
-	//p->color = mult_color(closest_sphere->color, compute_light(p, phit, nhit, closest_sphere));
-
-	//p->color = closest_sphere->color;
+	//p->color = mult_color(closest->color, compute_light(p, phit, nhit, ((t_sphere*)closest->data)));
+	p->color = closest->color;
 }
 
 void		lala2(t_vec3df *d, float ratio)
@@ -145,7 +169,7 @@ void		lala2(t_vec3df *d, float ratio)
 	d->x = d->x * ANGLE * ratio;
 	d->y = d->y * ANGLE;
 	d->z = 1;
-	v_normalize(d);
+	*d = v_normalize(*d);
 }
 
 void		ray_tracing(t_param *p)
@@ -174,8 +198,8 @@ void		ray_tracing(t_param *p)
 			trace_ray(p, d);
 			ft_pixel_put(p, x, y);
 			//SDL_RenderDrawPoint(p->sdl.ren, x, y);
-			y += 1;
+			y++;
 		}
-		x += 1;
+		x++;
 	}
 }

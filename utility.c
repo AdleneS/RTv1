@@ -98,10 +98,10 @@ double v_length(t_vec3df v)
 	return (sqrtf(v_dotproduct(v, v)));
 }
 
-void		v_normalize(t_vec3df *v)
+t_vec3df		v_normalize(t_vec3df v)
 {
-	double l = v_length(*v);
-	*v = ((t_vec3df){v->x / l, v->y / l, v->z / l});
+	double l = v_length(v);
+	return ((t_vec3df){v.x / l, v.y / l, v.z / l});
 }
 
 t_vec3df		v_crossprod(t_vec3df v1, t_vec3df v2)

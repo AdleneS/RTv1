@@ -1,4 +1,4 @@
- #include "rtv1.h"
+#include "rtv1.h"
 
 void	ft_pixel_put(t_param *p, int x, int y)
 {
@@ -28,44 +28,43 @@ void		addsphere(t_param *p)
 
 	sp1.pos = (t_vec3df){20, 0.8, 0};
 	sp1.radius = 3;
-	sp1.spe = 100;
-	sp1.color = (t_rgb){255, 100, 100, 255};
+	sp1.spe = -1;
 	sp2.pos = (t_vec3df){50, 5.0, 50};
 	sp2.radius = 3;
 	sp2.spe = -1;
-	sp2.color = (t_rgb){0, 255, 0, 255};
 	sp3.pos = (t_vec3df){0.0, 10.0, 0.0};
 	sp3.radius = 5;
 	sp3.spe = -1;
-	sp3.color = (t_rgb){1, 1, 255, 255};
 	sp4.pos = (t_vec3df){50, -10.0, 0.0};
 	sp4.radius = 25;
-	sp4.spe = 500;
-	sp4.color = (t_rgb){255, 255, 255, 255};
+	sp4.spe = -1;
 	light.pos = (t_vec3df){10, 5.0, 0};
 	light.color = (t_rgb){255, 255, 255, 255};
-	light.intensity = 0.1;
+	light.intensity = 0.2;
 	light.type = 2;
-	light2.pos = (t_vec3df){-100.0, 10.0, 20.0};
+	light2.pos = (t_vec3df){-50.0, 10.0, 0.0};
 	light2.color = (t_rgb){255, 255, 255, 255};
-	light2.intensity = 0.07;
+	light2.intensity = 0.09;
 	light2.type = 2;
 	light3.pos = (t_vec3df){50.0, 50, 150.0};
 	light3.color = (t_rgb){255, 255, 255, 255};
 	light3.intensity = 0.1;
 	light3.type = 2;
-	pl1.pos = (t_vec3df){50, -10.0, 0.0};
-	pl1.n = (t_vec3df){50.0, 10.0, 20.0};
+	pl1.pos = (t_vec3df){0.0, -100.0, 0.0};
+	pl1.n = (t_vec3df){0.0, 1.0, 0.0};
 	pl1.spe = 500;
-	pl1.color = (t_rgb){255, 255, 255, 255};
 	light_push(&p->light, light2, p);
 	light_push(&p->light, light3, p);
 	light_push(&p->light, light, p);
-	plane_push(&p->obj.pl, pl1, p);
-	sphere_push(&p->obj.sp, sp1, p);
-	sphere_push(&p->obj.sp, sp2, p);
-	sphere_push(&p->obj.sp, sp3, p);
-	sphere_push(&p->obj.sp, sp4, p);
+	//sphere_push(&p->obj.sp, sp1, p);
+	//sphere_push(&p->obj.sp, sp2, p);
+	//sphere_push(&p->obj.sp, sp3, p);
+	//sphere_push(&p->obj.sp, sp4, p);
+	obj_push(2, &p->obj, &pl1, (t_rgb){255, 0, 0, 255});
+	obj_push(1, &p->obj, &sp1,(t_rgb){255, 0, 0, 255});
+	obj_push(1, &p->obj, &sp2, (t_rgb){0, 255, 0, 255});
+	obj_push(1, &p->obj, &sp3, (t_rgb){0, 0, 255, 255});
+	obj_push(1, &p->obj, &sp4, (t_rgb){255, 255, 255, 255});
 }
 
 int main (int argc, char *argv[])
@@ -76,15 +75,15 @@ int main (int argc, char *argv[])
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	p->cam.pos = (t_vec3df){0.0, 0.0, -100.0};
+	p->cam.pos = (t_vec3df){0.0, 0.0, -50.0};
 	p->cam.rot = (t_vec3df){0.0, 0.0, 0.0};
-	
-	p->sdl.win = SDL_CreateWindow("RTV1starfoulilaliloulala", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+	p->sdl.win = SDL_CreateWindow("RTV1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 	p->sdl.ren = SDL_CreateRenderer(p->sdl.win, -1, 0);
 	p->sdl.tex = SDL_CreateTexture(p->sdl.ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 	p->sdl.pixels = malloc(sizeof(uint32_t) * WIDTH * HEIGHT);
-	p->obj.sp = NULL;
 	p->light = NULL;
+	//p->obj.sp = NULL;
+	p->obj = NULL;
 	addsphere(p);
 	if (p->sdl.win == NULL)
 		return (1);
