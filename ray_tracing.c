@@ -80,6 +80,20 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 	return (intensity);
 }
 
+double		intersect_plane(t_plane *pl, t_vec3df d, t_param *p)
+{
+	double	denom;
+	double	t;
+
+	denom = v_dotproduct(pl->n, d);
+	if (denom > 0)
+	{
+		t = v_dotproduct(v_sub(pl->pos, p->cam.pos), pl->n) / denom;
+		return (t >= 0);
+	}
+	return (0);
+}
+
 void		trace_ray(t_param *p, t_vec3df d)
 {
 	t_sphere	*closest_sphere;

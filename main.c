@@ -24,6 +24,7 @@ void		addsphere(t_param *p)
 	t_light			light;
 	t_light			light2;
 	t_light			light3;
+	t_plane			pl1;
 
 	sp1.pos = (t_vec3df){20, 0.8, 0};
 	sp1.radius = 3;
@@ -53,9 +54,14 @@ void		addsphere(t_param *p)
 	light3.color = (t_rgb){255, 255, 255, 255};
 	light3.intensity = 0.1;
 	light3.type = 2;
+	pl1.pos = (t_vec3df){50, -10.0, 0.0};
+	pl1.n = (t_vec3df){50.0, 10.0, 20.0};
+	pl1.spe = 500;
+	pl1.color = (t_rgb){255, 255, 255, 255};
 	light_push(&p->light, light2, p);
 	light_push(&p->light, light3, p);
 	light_push(&p->light, light, p);
+	plane_push(&p->obj.pl, pl1, p);
 	sphere_push(&p->obj.sp, sp1, p);
 	sphere_push(&p->obj.sp, sp2, p);
 	sphere_push(&p->obj.sp, sp3, p);
