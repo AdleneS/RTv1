@@ -130,6 +130,6 @@ t_rgb			mult_color(t_rgb color, double k);
 uint32_t		rgb_to_hex(t_rgb color);
 double			v_length(t_vec3df v);
 void			plane_push(t_plane **list, t_plane pl, t_param *p);
-void		obj_push(int type, t_obj **list, void *data, t_rgb color);
+void			obj_push(int type, t_obj **list, void *data, t_rgb color);
 
 #endif
