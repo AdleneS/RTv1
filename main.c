@@ -11,24 +11,35 @@ void	ft_pixel_put(t_param *p, int x, int y)
 	if ((x >= 0 && x < WIDTH) && (y >= 0 && y < HEIGHT))
 	{
 		p->sdl.pixels[i] = color;
-
 	}
 }
 
 void		addsphere(t_param *p)
 {
 	t_sphere		sp1;
-	t_sphere		sp2;
-	t_sphere		sp3;
-	t_sphere		sp4;
 	t_light			light;
 	t_light			light2;
 	t_light			light3;
 	t_plane			pl1;
+	t_tex			tex;
 
 	sp1.pos = (t_vec3df){0, 0, 0};
-	sp1.radius = 50;
-	sp1.spe = -1;
+	sp1.radius = 5;
+	tex.color = (t_rgb){255, 0, 0, 255};
+	tex.spe = 800;
+	obj_push(1, &p->obj, &sp1, tex);
+
+	sp1.pos = (t_vec3df){-20, 0, 45};
+	sp1.radius = 10;
+	tex.color = (t_rgb){0, 255, 255, 255};
+	tex.spe = -1;
+	obj_push(1, &p->obj, &sp1, tex);
+
+	sp1.pos = (t_vec3df){20, 20, 45};
+	sp1.radius = 10;
+	tex.color = (t_rgb){200, 255, 100, 255};
+	tex.spe = -1;
+	obj_push(1, &p->obj, &sp1, tex);
 	//sp2.pos = (t_vec3df){50, 5.0, 50};
 	//sp2.radius = 3;
 	//sp2.spe = -1;
@@ -38,49 +49,55 @@ void		addsphere(t_param *p)
 	//sp4.pos = (t_vec3df){50, -10.0, 0.0};
 	//sp4.radius = 25;
 	//sp4.spe = -1;
-	light.pos = (t_vec3df){0.0, 5.0, -10.0};
-	light.color = (t_rgb){255, 255, 255, 255};
-	light.intensity = 1.0;
-	light.type = 2;
-	light2.pos = (t_vec3df){0.0, 5.0, 15.0};
-	light2.color = (t_rgb){255, 255, 255, 255};
-	light2.intensity = 1.0;
-	light2.type = 2;
-	light3.pos = (t_vec3df){50.0, 50, 150.0};
-	light3.color = (t_rgb){255, 255, 255, 255};
-	light3.intensity = 1.0;
-	light3.type = 2;
 	pl1.pos = (t_vec3df){0.0, -20.0, 0.0};
 	pl1.n = (t_vec3df){0.0, -1.0, 0.0};
-	obj_push(2, &p->obj, &pl1, (t_rgb){.5, .2,251, 255});
-	pl1.pos = (t_vec3df){20.0, 0.0, 0.0};
+	tex.color = (t_rgb){255, 255, 0, 255};
+	tex.spe = -1;
+	obj_push(2, &p->obj, &pl1, tex);
+
+	pl1.pos = (t_vec3df){50.0, 0.0, 0.0};
 	pl1.n = (t_vec3df){1.0, 0.0, 0.0};
-	pl1.spe = -1;
-	obj_push(2, &p->obj, &pl1, (t_rgb){.3, 208, .5, 255});
-	pl1.pos = (t_vec3df){-20.0, 0.0, 0.0};
+	tex.color = (t_rgb){50, 200, 100, 255};
+	tex.spe = -1;
+	obj_push(2, &p->obj, &pl1, tex);
+
+	pl1.pos = (t_vec3df){-50.0, 0.0, 0.0};
 	pl1.n = (t_vec3df){-1.0, 0.0, 0.0};
-	pl1.spe = 500;
-	obj_push(2, &p->obj, &pl1, (t_rgb){208, .8, .8, 255});
-	pl1.pos = (t_vec3df){0.0, 20.0, 0.0};
-	pl1.n = (t_vec3df){.0, 1.0, 0.0};
-	pl1.spe = 500;
-	pl1.pos = (t_vec3df){0.0, -10.0, 0.0};
-	pl1.n = (t_vec3df){0.0, -1.0, 0.0};
-	pl1.spe = 500;
-	obj_push(2, &p->obj, &pl1, (t_rgb){255, 50, 255, 255});
-	light_push(&p->light, light2, p);
-	//light_push(&p->light, light3, p);
-	light_push(&p->light, light, p);
+	tex.color = (t_rgb){255, 100, 20, 255};
+	tex.spe = -1;
+	obj_push(2, &p->obj, &pl1, tex);
+
+	pl1.pos = (t_vec3df){0.0, 0.0, 75.0};
+	pl1.n = (t_vec3df){0.0, 0.0, 1.0};
+	tex.color = (t_rgb){10, 190, 200, 255};
+	tex.spe = -1;
+	obj_push(2, &p->obj, &pl1, tex);
 	//sphere_push(&p->obj.sp, sp1, p);
 	//sphere_push(&p->obj.sp, sp2, p);
 	//sphere_push(&p->obj.sp, sp3, p);
 
 	//sphere_push(&p->obj.sp, sp4, p);
 	//obj_push(2, &p->obj, &pl1, (t_rgb){1, 1, .5, 255});
-	obj_push(1, &p->obj, &sp1,(t_rgb){255, 0, 0, 255});
 	//obj_push(1, &p->obj, &sp2, (t_rgb){0, 255, 0, 255});
 	//obj_push(1, &p->obj, &sp3, (t_rgb){0, 0, 255, 255});
 	//obj_push(1, &p->obj, &sp4, (t_rgb){255, 255, 255, 255});
+	light.pos = (t_vec3df){-20.0, 10.0, 0.0};
+	light.color = (t_rgb){255, 255, 255, 255};
+	light.intensity = 0.1;
+	light.type = 2;
+	//light_push(&p->light, light, p);
+
+	light2.pos = (t_vec3df){-100.0, 10.0, 0.0};
+	light2.color = (t_rgb){255, 255, 255, 255};
+	light2.intensity = 0.08;
+	light2.type = 2;
+	light_push(&p->light, light2, p);
+
+	//light3.pos = (t_vec3df){50.0, 50, 150.0};
+	//light3.color = (t_rgb){255, 255, 255, 255};
+	//light3.intensity = 1.0;
+	//light3.type = 2;
+	//light_push(&p->light, light3, p);
 }
 
 int main (int argc, char *argv[])

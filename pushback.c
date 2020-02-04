@@ -9,19 +9,18 @@ void		sphere_push(t_sphere **list, t_sphere sp, t_param *p)
 	new->pos = sp.pos;
 	new->radius = sp.radius;
 	//new->color = sp.color;
-	new->spe = sp.spe;
 	//new->next = !*list ? NULL : *list;
 	*list = new;
 }
 
-void		obj_push(int type, t_obj **list, void *data, t_rgb color)
+void		obj_push(int type, t_obj **list, void *data, t_tex tex)
 {
 	t_obj *new;
 
 	if (!(new = malloc(sizeof(t_obj))))
 		SDL_Error(-1);
 	new->type = type;
-	new->color = color;
+	new->tex = tex;
 	if (new->type == 1)
 	{
 		new->data = malloc(sizeof(t_sphere));
@@ -44,7 +43,6 @@ void		plane_push(t_plane **list, t_plane pl, t_param *p)
 		SDL_Error(-1);
 	new->pos = pl.pos;
 	new->n = pl.n;
-	new->spe = pl.spe;
 	new->next = !*list ? NULL : *list;
 	*list = new;
 }

@@ -43,24 +43,27 @@ typedef struct			s_sphere
 {
 	struct s_vec3df		pos;
 	double				radius;
-	double				spe;
 }						t_sphere;
 
 typedef struct			s_plane
 {
 	struct s_vec3df		pos;
 	struct s_vec3df		n;
-	double				spe;
 	struct s_plane		*next;
 }						t_plane;
+
+typedef struct			s_tex
+{
+	struct s_rgb		color;
+	float				spe;
+}						t_tex;
 
 typedef struct			s_obj
 {
 	int					type;
+	struct s_tex		tex;
 	void				*data;
-	struct s_rgb		color;
 	struct s_obj		*next;
-
 	//struct s_sphere		*sp;
 	//struct s_plane		*pl;
 }						t_obj;
@@ -73,6 +76,7 @@ typedef struct			s_light
 	unsigned int		type;
 	struct s_light		*next;
 }						t_light;
+
 
 typedef struct			s_cam
 {
@@ -130,6 +134,6 @@ t_rgb			mult_color(t_rgb color, double k);
 uint32_t		rgb_to_hex(t_rgb color);
 double			v_length(t_vec3df v);
 void			plane_push(t_plane **list, t_plane pl, t_param *p);
-void			obj_push(int type, t_obj **list, void *data, t_rgb color);
+void			obj_push(int type, t_obj **list, void *data, t_tex tex);
 
 #endif

@@ -29,7 +29,24 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, f
 	
 }
 
-float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
+float		intersect_plane(t_vec3df raypos, t_vec3df d, t_plane *pl)
+{
+	double		denom;
+	double		t;
+	t_vec3df	diff;
+	
+	denom = v_dotproduct(pl->n, d);
+	if ((fabs(denom)) > 0.001)
+	{
+		diff = v_sub(pl->pos, raypos);
+		t = v_dotproduct(diff, pl->n) / denom;
+		if (t > 0.001)
+			return (t);
+	}
+	return (-1);
+}
+
+float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_obj *closest)
 {
 	t_light		*tmp;
 	float		intensity;
@@ -45,7 +62,9 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 	tmp = p->light;
 	n_lenght = v_length(nhit);
 	intensity = 0;
+	dot = 0;
 	vec_l = (t_vec3df){0, 0, 0};
+	t = 0;
 	while (tmp)
 	{
 		if (tmp->type == 1)
@@ -55,56 +74,33 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_sphere *sp)
 		else if (tmp->type == 3)
 			vec_l = tmp->pos;
 		vec_l = v_normalize(vec_l);
-		//if (sp->spe != -1)
-		//{
-		//	vec_r = v_sub(v_mulk(nhit, (2.0 * v_dotproduct(nhit, vec_l))), vec_l);
-		//	r_dot_v = v_dotproduct(vec_r, p->cam.pos);
-		//	if (r_dot_v > 0)
-		//		intensity += tmp->intensity * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), sp->spe);
-		//}
-		//tmp1 = p->obj;
-		//while (tmp1 && tmp1->type == 1)
-		//{
-			//if (((t = intersect_sphere(phit, vec_l, ((t_sphere*)tmp1->data), 0.01, v_length(tmp->pos)))) < 0)
-			//{
+		if (closest->tex.spe != -1)
+		{
+			vec_r = v_sub(v_mulk(nhit, (2.0 * v_dotproduct(nhit, vec_l))), vec_l);
+			r_dot_v = v_dotproduct(vec_r, p->cam.pos);
+			if (r_dot_v > 0)
+				intensity += tmp->intensity * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), closest->tex.spe);
+		}
+		tmp1 = p->obj;
+		while (tmp1)
+		{
+			if (tmp1->type == 1)
+				t = intersect_sphere(phit, vec_l, ((t_sphere*)tmp1->data), 0.01, v_length(tmp->pos));
+			if (tmp1->type == 2)
+				t = intersect_plane(phit, vec_l, ((t_plane*)tmp1->data));
+			if (t < 0.001 || t > v_length(tmp->pos))
+			{
 				dot = v_dotproduct(nhit, vec_l);
 				if (dot > 0)
-					intensity += tmp->intensity * dot ;
-			//}
-			//tmp1 = tmp1->next;
-		//}
+					intensity += tmp->intensity * dot;
+			}
+			tmp1 = tmp1->next;
+		}
 		tmp = tmp->next;
 	}
 	return (intensity);
 }
 
-double		intersect_plane(t_plane *pl, t_vec3df d, t_param *p)
-{
-	/*double		denom;
-	double		t;
-	t_vec3df	diff;
-	
-	denom = v_dotproduct(pl->n, d);
-	if ((denom) > 0.0001)
-	{
-		diff = v_sub(pl->pos, p->cam.pos);
-		diff = v_normalize(diff);
-		t = v_dotproduct(diff, pl->n) / denom;
-		if (t > 0.0001)
-			return (t);
-	}
-	return (-1);
-*/
-	double	t;
-	double	a;
-	double	b;
-
-	a = v_dotproduct(v_sub(p->cam.pos, pl->pos), pl->n);
-	b = v_dotproduct(d, pl->n);
-	if (b < 0.0001 || (t = -a / b) < 0)
-		return (-1);
-	return (t > 0.001 ? t : -1);
-}
 
 void		trace_ray(t_param *p, t_vec3df d)
 {
@@ -125,7 +121,7 @@ void		trace_ray(t_param *p, t_vec3df d)
 		if (tmp->type == 1)
 			t = intersect_sphere(p->cam.pos, d, ((t_sphere*)tmp->data), 0, INFINITY);
 		if (tmp->type == 2)
-			t = intersect_plane(((t_plane*)tmp->data), d, p);
+			t = intersect_plane(p->cam.pos, d, ((t_plane*)tmp->data));
 		if (t > 0.001 && t < dis)
 		{
 			dis = t;
@@ -140,9 +136,9 @@ void		trace_ray(t_param *p, t_vec3df d)
 			{
 				//nhit = v_sub(phit, ((t_plane*)closest->data)->pos);
 				//nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
+				nhit = ((((t_plane*)closest->data)->n));
 				if (v_dotproduct(d, ((t_plane*)closest->data)->n) > 0)
-					nhit = ((((t_plane*)closest->data)->n));
-				nhit = (v_mulk(((t_plane*)closest->data)->n, -1));
+					nhit = (v_mulk(nhit, -1));
 				
 			}
 		}
@@ -159,7 +155,7 @@ void		trace_ray(t_param *p, t_vec3df d)
 	//{
 	////p->color = mult_color(closest->color, compute_light(p, phit, nhit));
 	//}
-	p->color = mult_color(closest->color, compute_light(p, phit, nhit, ((t_sphere*)closest->data)));
+	p->color = mult_color(closest->tex.color, compute_light(p, phit, nhit, closest));
 	// p->color = closest->color;
 }
 
