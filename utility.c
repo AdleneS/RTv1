@@ -56,16 +56,46 @@ uint32_t		rgb_to_hex(t_rgb color)
 	return ((int)color.a << 24 | (int)color.r << 16 | (int)color.g << 8 | (int)color.b);
 }
 
-t_rgb			mult_color(t_rgb color, double k)
+t_rgb			mult_color(t_rgb color, t_rgb k)
 {
-	t_rgb		tmp;
+	//t_rgb		tmp;
+//
+	//tmp = color;
+	//tmp.r /= 255;
+	//tmp.g /= 255;
+	//tmp.b /= 255;
+	//tmp.a /= 255;
+	//k.r /= 255;
+	//k.g /= 255;
+	//k.b /= 255;
+	//k.a /= 255;
+	return ((t_rgb){(color.r * k.r), (color.g * k.g), (color.b * k.b), (color.a * k.a)});
+}
 
-	tmp = color;
-	tmp.r /= 255;
-	tmp.g /= 255;
-	tmp.b /= 255;
-	tmp.a /= 255;
-	return ((t_rgb){(tmp.r * k), (tmp.g * k), (tmp.b * k), (tmp.a * k)});
+t_rgb			mulk_color(t_rgb color, float k)
+{
+	//t_rgb		tmp;
+//
+	//tmp = color;
+	//tmp.r /= 255;
+	//tmp.g /= 255;
+	//tmp.b /= 255;
+	//tmp.a /= 255;
+	//k.r /= 255;
+	//k.g /= 255;
+	//k.b /= 255;
+	//k.a /= 255;
+	return ((t_rgb){(color.r * k), (color.g * k), (color.b * k), (color.a * k)});
+}
+
+t_rgb			add_color(t_rgb color, t_rgb k)
+{
+	return ((t_rgb){(color.r + k.r), (color.g + k.g), (color.b + k.b), (color.a + k.a)});
+}
+
+t_rgb			addk_color(t_rgb color, float k)
+{
+	return ((t_rgb){(color.r + k), (color.g + k), (color.b + k), (color.a + k)});
 }
 
 void			rot_x(t_param *p, t_vec3df *d)

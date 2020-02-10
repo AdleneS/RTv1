@@ -1,5 +1,29 @@
 #include "rtv1.h"
 
+/*float				inetersect_cone(t_ray *ray, t_object *cone)
+{
+	t_vector3 		var;
+	float			tmp[2];
+	t_vector3		l;
+	float			taN;
+
+	taN = tan(cone->shape.angle * M_PI / 180);
+	l = vector_sub(ray->origin, cone->transform.rotation);
+	tmp[0] = vector_dot(ray->direction, cone->transform.rotation);
+	tmp[1] = vector_dot(l, cone->transform.rotation);
+	var.x = vector_dot(ray->direction, ray->direction) -
+			((1 + pow(taN, 2)) * pow(tmp[0], 2));
+	var.y = 2 * (vector_dot(ray->direction, l) -
+			((1 + pow(taN, 2)) * tmp[0] * tmp[1]));
+	var.z = vector_dot(l, l) - (1 + pow(taN, 2) * pow(tmp[1], 2));
+	if (solve_quadratic(var) == 1)
+		{
+			//getsurface(n);
+			return (1);
+	}
+	return (0);
+}*/
+
 float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, float max_t)
 {
 	t_vec3df	oc;
@@ -19,14 +43,43 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, f
 	discriminant = k2 * k2 - 4.0 * k1 * k3;
 	if (discriminant < 0)
 		return (-1);
-	t1 = (-k2 + sqrt(discriminant)) * .5;
-	t2 = (-k2 - sqrt(discriminant)) * .5;
+	t1 = (-k2 + sqrtf(discriminant)) * .5;
+	t2 = (-k2 - sqrtf(discriminant)) * .5;
 	min = fminf(t1, t2);
 	if (min > min_t && min < max_t)
 		return (min);
 	else
 		return (-1);
 	
+}
+
+float	intersect_cylinder(t_vec3df raypos, t_vec3df d, t_cylinder *cyn)
+{
+	t_vec3df	oc;
+	double		k1;
+	double		k2;
+	double		k3;
+	double		t1;
+	double		t2;
+	double		discriminant;
+	double		min;
+	double		dot1;
+	double		dot2;
+	
+	oc = v_sub(raypos, cyn->pos);
+	dot1 = v_dotproduct(d, v_normalize(cyn->n));
+	dot2 = v_dotproduct(oc, cyn->n);
+	k1 = v_dotproduct(d, d) - pow(dot1, 2);
+	k2 = 2 * (v_dotproduct(d, oc) - (dot1 * dot2));
+	k3 = v_dotproduct(oc, oc) - pow(dot2, 2) - pow(cyn->r, 2);
+
+	discriminant = k2 * k2 - 4.0 * k1 * k3;
+	if (discriminant < 0)
+		return (-1);
+	t1 = (-k2 + sqrtf(discriminant)) / (2 * k1);
+	t2 = (-k2 - sqrtf(discriminant)) / ( 2 * k1);
+	min = fminf(t1, t2);
+	return (min);
 }
 
 float		intersect_plane(t_vec3df raypos, t_vec3df d, t_plane *pl)
@@ -46,10 +99,10 @@ float		intersect_plane(t_vec3df raypos, t_vec3df d, t_plane *pl)
 	return (-1);
 }
 
-float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_obj *closest)
+t_rgb	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_obj *closest)
 {
 	t_light		*tmp;
-	float		intensity;
+	t_rgb		intensity;
 	float		dot;
 	t_vec3df	vec_l;
 	t_vec3df	vec_r;
@@ -61,40 +114,55 @@ float	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_obj *closest)
 
 	tmp = p->light;
 	n_lenght = v_length(nhit);
-	intensity = 0;
-	dot = 0;
+	intensity = (t_rgb){0, 0, 0, 0};
 	vec_l = (t_vec3df){0, 0, 0};
+	dot = 0;
 	t = 0;
 	while (tmp)
 	{
 		if (tmp->type == 1)
-			intensity += tmp->intensity;
+			intensity = add_color(intensity, mulk_color(tmp->color, tmp->intensity));
 		else if (tmp->type == 2)
 			vec_l = v_sub(tmp->pos, phit);
 		else if (tmp->type == 3)
 			vec_l = tmp->pos;
+		double didis = v_length(vec_l);
 		vec_l = v_normalize(vec_l);
-		if (closest->tex.spe != -1)
-		{
-			vec_r = v_sub(v_mulk(nhit, (2.0 * v_dotproduct(nhit, vec_l))), vec_l);
-			r_dot_v = v_dotproduct(vec_r, p->cam.pos);
-			if (r_dot_v > 0)
-				intensity += tmp->intensity * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), closest->tex.spe);
-		}
 		tmp1 = p->obj;
+		int		hit;
+		hit = 0;
 		while (tmp1)
 		{
 			if (tmp1->type == 1)
-				t = intersect_sphere(phit, vec_l, ((t_sphere*)tmp1->data), 0.01, v_length(tmp->pos));
+				t = intersect_sphere(phit, vec_l, ((t_sphere*)tmp1->data), 0, INFINITY);
 			if (tmp1->type == 2)
 				t = intersect_plane(phit, vec_l, ((t_plane*)tmp1->data));
-			if (t < 0.001 || t > v_length(tmp->pos))
+			if (tmp1->type == 3)
+				t= -1 ;//intersect_cylinder(phit, vec_l,((t_cylinder*)tmp1->data));
+			if (t > 0.001 && t < didis)
 			{
-				dot = v_dotproduct(nhit, vec_l);
-				if (dot > 0)
-					intensity += tmp->intensity * dot;
+				hit = 1;
+				break ;
 			}
 			tmp1 = tmp1->next;
+		}
+		if (hit == 0)
+		{
+			dot = v_dotproduct(nhit, vec_l);
+			if (dot > 0)
+				intensity = add_color(intensity, mulk_color(tmp->color, tmp->intensity * dot));
+			if (closest->tex.spe != -1)
+			{
+				vec_r = v_sub(v_mulk(nhit, (2.0 * v_dotproduct(nhit, vec_l))), vec_l);
+				r_dot_v = v_dotproduct(vec_r, p->cam.pos);
+				if (r_dot_v > 0)
+				{
+					//intensity = addk_color(intensity, tmp->intensity * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), closest->tex.spe));
+					intensity.r += tmp->color.r * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), closest->tex.spe);
+					intensity.g += tmp->color.g * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), closest->tex.spe);
+					intensity.b += tmp->color.b * pow(r_dot_v / (v_length(vec_r) * v_length(p->cam.pos)), closest->tex.spe);
+				}
+			}
 		}
 		tmp = tmp->next;
 	}
@@ -122,6 +190,8 @@ void		trace_ray(t_param *p, t_vec3df d)
 			t = intersect_sphere(p->cam.pos, d, ((t_sphere*)tmp->data), 0, INFINITY);
 		if (tmp->type == 2)
 			t = intersect_plane(p->cam.pos, d, ((t_plane*)tmp->data));
+		if (tmp->type == 3)
+			t = intersect_cylinder(p->cam.pos, d,((t_cylinder*)tmp->data));
 		if (t > 0.001 && t < dis)
 		{
 			dis = t;
@@ -134,12 +204,15 @@ void		trace_ray(t_param *p, t_vec3df d)
 			}
 			if (closest->type == 2)
 			{
-				//nhit = v_sub(phit, ((t_plane*)closest->data)->pos);
-				//nhit = v_mulk(nhit, (1.0 / v_length(nhit)));
 				nhit = ((((t_plane*)closest->data)->n));
 				if (v_dotproduct(d, ((t_plane*)closest->data)->n) > 0)
 					nhit = (v_mulk(nhit, -1));
-				
+			}
+			if (closest->type == 3)
+			{
+				nhit = ((((t_cylinder*)closest->data)->n));
+				if (v_dotproduct(d, ((t_cylinder*)closest->data)->n) > 0)
+					nhit = (v_mulk(nhit, -1));
 			}
 		}
 		tmp = tmp->next;
@@ -171,16 +244,18 @@ void		lala2(t_vec3df *d, float ratio)
 	*d = v_normalize(*d);
 }
 
-void		ray_tracing(t_param *p)
+void		*ray_tracing(void *pvoid)
 {
 	int			x;
 	int			y;
 	t_vec3df	d;
 	float		ratio;
+	t_param		*p;
 
+	p = (t_param *)pvoid;
 	ratio = WIDTH / (float)HEIGHT;
-	x = 0;
-	while (x < WIDTH )
+	x = p->th_i;
+	while (x < p->th_imax)
 	{
 		y = 0;
 		while (y < HEIGHT)
@@ -201,4 +276,5 @@ void		ray_tracing(t_param *p)
 		}
 		x++;
 	}
+	return (p);
 }

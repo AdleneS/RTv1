@@ -31,6 +31,11 @@ void		obj_push(int type, t_obj **list, void *data, t_tex tex)
 		new->data = malloc(sizeof(t_plane));
 		*(t_plane*)new->data = *(t_plane*)data;
 	}
+	if (new->type == 3)
+	{
+		new->data = malloc(sizeof(t_cylinder));
+		*(t_cylinder*)new->data = *(t_cylinder*)data;
+	}
 	new->next = !*list ? NULL : *list;
 	*list = new;
 }

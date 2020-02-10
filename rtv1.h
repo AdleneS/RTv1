@@ -4,9 +4,12 @@
 # include "SDL.h"
 # include <stdio.h>
 # include <math.h>
+# include <pthread.h>
 
 # define WIDTH 800
 # define HEIGHT 450
+# define THREADS 16
+# define TWIDTH (WIDTH / THREADS)
 # define INF 10^8
 # define FOV 30
 # define PI 3.14
@@ -44,6 +47,13 @@ typedef struct			s_sphere
 	struct s_vec3df		pos;
 	double				radius;
 }						t_sphere;
+
+typedef struct			s_cylinder
+{
+	struct s_vec3df		pos;
+	struct s_vec3df		n;
+	double				r;
+}						t_cylinder;
 
 typedef struct			s_plane
 {
@@ -112,6 +122,8 @@ typedef struct			s_param
 	struct s_sdl		sdl;
 	struct s_rgb		color;
 	struct s_cam		cam;
+	int					th_i;
+	int					th_imax;
 	struct s_obj		*obj;
 	struct s_light		*light;
 }						t_param;
@@ -119,7 +131,7 @@ typedef struct			s_param
 
 t_vec3df		v_sub(t_vec3df v1, t_vec3df v2);
 double			v_dotproduct(t_vec3df v1, t_vec3df v2);
-void			ray_tracing(t_param *p);
+void			*ray_tracing(void *pvoid);
 t_vec3df		v_mul(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_add(t_vec3df v1, t_vec3df v2);
 void			ft_pixel_put(t_param *p, int x, int y);
@@ -130,10 +142,13 @@ void			rot_y(t_param *p, t_vec3df *d);
 void			light_push(t_light **list, t_light light, t_param *p);
 t_vec3df		v_sub(t_vec3df v1, t_vec3df v2);
 t_vec3df		v_mulk(t_vec3df v1, double k);
-t_rgb			mult_color(t_rgb color, double k);
+t_rgb			mult_color(t_rgb color, t_rgb k);
 uint32_t		rgb_to_hex(t_rgb color);
 double			v_length(t_vec3df v);
 void			plane_push(t_plane **list, t_plane pl, t_param *p);
 void			obj_push(int type, t_obj **list, void *data, t_tex tex);
+t_rgb			add_color(t_rgb color, t_rgb k);
+t_rgb			addk_color(t_rgb color, float k);
+t_rgb			mulk_color(t_rgb color, float k);
 
 #endif

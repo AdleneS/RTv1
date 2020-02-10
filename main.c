@@ -1,5 +1,25 @@
 #include "rtv1.h"
 
+int		multithreads(t_param *p)
+{
+	int			i;
+	pthread_t	tid[THREADS];
+	t_param		th_param[THREADS];
+
+	i = 0;
+	while (i < THREADS)
+	{
+		th_param[i] = *p;
+		th_param[i].th_i = TWIDTH * i;
+		th_param[i].th_imax = TWIDTH * (i + 1);
+		pthread_create(&tid[i], NULL, ray_tracing, &th_param[i]);
+		i++;
+	}
+	while (i--)
+		pthread_join(tid[i], NULL);
+	return (1);
+}
+
 void	ft_pixel_put(t_param *p, int x, int y)
 {
 	int			i;
@@ -22,24 +42,32 @@ void		addsphere(t_param *p)
 	t_light			light3;
 	t_plane			pl1;
 	t_tex			tex;
+	t_cylinder		cyn;
 
-	sp1.pos = (t_vec3df){0, 0, 0};
+	sp1.pos = (t_vec3df){0, -5, 0};
 	sp1.radius = 5;
-	tex.color = (t_rgb){255, 0, 0, 255};
+	tex.color = (t_rgb){1, 0, 0, 1};
 	tex.spe = 800;
 	obj_push(1, &p->obj, &sp1, tex);
 
 	sp1.pos = (t_vec3df){-20, 0, 45};
 	sp1.radius = 10;
-	tex.color = (t_rgb){0, 255, 255, 255};
+	tex.color = (t_rgb){0, 1, 1, 1};
 	tex.spe = -1;
 	obj_push(1, &p->obj, &sp1, tex);
 
-	sp1.pos = (t_vec3df){20, 20, 45};
+	sp1.pos = (t_vec3df){0, -5, -20};
 	sp1.radius = 10;
-	tex.color = (t_rgb){200, 255, 100, 255};
+	tex.color = (t_rgb){0.9, 1.0, 0.2, 1};
 	tex.spe = -1;
 	obj_push(1, &p->obj, &sp1, tex);
+
+	cyn.pos = (t_vec3df){0, 0, -10};
+	cyn.r = 10;
+	cyn.n = (t_vec3df){0, 1, 0};
+	tex.color = (t_rgb){0.9, 1.0, 0.2, 1};
+	tex.spe = -1;
+	obj_push(3, &p->obj, &cyn, tex);
 	//sp2.pos = (t_vec3df){50, 5.0, 50};
 	//sp2.radius = 3;
 	//sp2.spe = -1;
@@ -50,26 +78,26 @@ void		addsphere(t_param *p)
 	//sp4.radius = 25;
 	//sp4.spe = -1;
 	pl1.pos = (t_vec3df){0.0, -20.0, 0.0};
-	pl1.n = (t_vec3df){0.0, -1.0, 0.0};
-	tex.color = (t_rgb){255, 255, 0, 255};
+	pl1.n = (t_vec3df){0.0, 1.0, 0.0};
+	tex.color = (t_rgb){1, 1, 0, 1};
 	tex.spe = -1;
 	obj_push(2, &p->obj, &pl1, tex);
 
 	pl1.pos = (t_vec3df){50.0, 0.0, 0.0};
-	pl1.n = (t_vec3df){1.0, 0.0, 0.0};
-	tex.color = (t_rgb){50, 200, 100, 255};
+	pl1.n = (t_vec3df){-1.0, 0.0, 0.0};
+	tex.color = (t_rgb){0.02, 0.8, 0.6, 255};
 	tex.spe = -1;
 	obj_push(2, &p->obj, &pl1, tex);
 
 	pl1.pos = (t_vec3df){-50.0, 0.0, 0.0};
 	pl1.n = (t_vec3df){-1.0, 0.0, 0.0};
-	tex.color = (t_rgb){255, 100, 20, 255};
+	tex.color = (t_rgb){1, 0.4, 0.01, 255};
 	tex.spe = -1;
-	obj_push(2, &p->obj, &pl1, tex);
+	//obj_push(2, &p->obj, &pl1, tex);
 
 	pl1.pos = (t_vec3df){0.0, 0.0, 75.0};
-	pl1.n = (t_vec3df){0.0, 0.0, 1.0};
-	tex.color = (t_rgb){10, 190, 200, 255};
+	pl1.n = (t_vec3df){0.0, 0.0, -1.0};
+	tex.color = (t_rgb){0.01, 0.2, 0.9, 255};
 	tex.spe = -1;
 	obj_push(2, &p->obj, &pl1, tex);
 	//sphere_push(&p->obj.sp, sp1, p);
@@ -81,23 +109,23 @@ void		addsphere(t_param *p)
 	//obj_push(1, &p->obj, &sp2, (t_rgb){0, 255, 0, 255});
 	//obj_push(1, &p->obj, &sp3, (t_rgb){0, 0, 255, 255});
 	//obj_push(1, &p->obj, &sp4, (t_rgb){255, 255, 255, 255});
-	light.pos = (t_vec3df){-20.0, 10.0, 0.0};
-	light.color = (t_rgb){255, 255, 255, 255};
-	light.intensity = 0.1;
+	light.pos = (t_vec3df){30.0, 10.0, 30.0};
+	light.color = (t_rgb){0, 0, 1, 1};
+	light.intensity = .5;
 	light.type = 2;
-	//light_push(&p->light, light, p);
+	light_push(&p->light, light, p);
 
-	light2.pos = (t_vec3df){-100.0, 10.0, 0.0};
-	light2.color = (t_rgb){255, 255, 255, 255};
-	light2.intensity = 0.08;
-	light2.type = 2;
+	light2.pos = (t_vec3df){50.0, 20.0, 10.0};
+	light2.color = (t_rgb){1, 1, 1, 1};
+	light2.intensity = 0.1;
+	light2.type = 1;
 	light_push(&p->light, light2, p);
 
-	//light3.pos = (t_vec3df){50.0, 50, 150.0};
-	//light3.color = (t_rgb){255, 255, 255, 255};
-	//light3.intensity = 1.0;
-	//light3.type = 2;
-	//light_push(&p->light, light3, p);
+	light3.pos = (t_vec3df){-30.0, 20.0, 10.0};
+	light3.color = (t_rgb){0, 1, 0, 1};
+	light3.intensity = 0.5;
+	light3.type = 2;
+	light_push(&p->light, light3, p);
 }
 
 int main (int argc, char *argv[])
@@ -117,22 +145,24 @@ int main (int argc, char *argv[])
 	p->light = NULL;
 	//p->obj.sp = NULL;
 	p->obj = NULL;
+	SDL_Event	event;
 	addsphere(p);
 	if (p->sdl.win == NULL)
 		return (1);
 	while (1)
 	{
 		const Uint8 *state = SDL_GetKeyboardState(NULL);
-		SDL_Event		event;
 		if (SDL_PollEvent(&event))
 		{
 			move = (t_vec3df){0.0, 0.0, 0.0};
 			if (event.type == SDL_QUIT)
-				break;
+				break ;
 			if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
 			{
 				if (state[SDL_SCANCODE_D])
 					move = v_add(move, (t_vec3df){1, 0, 0});
+				if (state[SDL_SCANCODE_ESCAPE])
+					break ;
 				if (state[SDL_SCANCODE_A])
 					move = v_add(move, (t_vec3df){-1, 0, 0});
 				if (state[SDL_SCANCODE_S])
@@ -156,7 +186,8 @@ int main (int argc, char *argv[])
 			rot_y(p, &move);
 			p->cam.pos = v_add(p->cam.pos, move);
 		}
-		ray_tracing(p);
+		//ray_tracing(p);
+		multithreads(p);
 		SDL_UpdateTexture(p->sdl.tex, NULL, p->sdl.pixels, WIDTH * 4);
 		//SDL_UnlockTexture(p->sdl.tex);
 		//SDL_SetRenderTarget(p->sdl.ren, p->sdl.tex);
