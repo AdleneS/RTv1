@@ -43,6 +43,7 @@ void		addsphere(t_param *p)
 	t_plane			pl1;
 	t_tex			tex;
 	t_cylinder		cyn;
+	t_cone			cone;
 
 	sp1.pos = (t_vec3df){0, -5, 0};
 	sp1.radius = 5;
@@ -65,9 +66,23 @@ void		addsphere(t_param *p)
 	cyn.pos = (t_vec3df){0, 0, -10};
 	cyn.r = 10;
 	cyn.n = (t_vec3df){0, 1, 0};
-	tex.color = (t_rgb){0.9, 1.0, 0.2, 1};
-	tex.spe = -1;
+	tex.color = (t_rgb){0.9, 0.7, 0.9, 1};
+	tex.spe = 800;
 	obj_push(3, &p->obj, &cyn, tex);
+
+	cyn.pos = (t_vec3df){0, 30, 30};
+	cyn.r = 5;
+	cyn.n = (t_vec3df){1, 0, 0};
+	tex.color = (t_rgb){1.0, 0.0, 1.0, 1};
+	tex.spe = 800;
+	obj_push(3, &p->obj, &cyn, tex);
+
+	cone.pos = (t_vec3df){-10, 0, -50};
+	cone.angle = 90;
+	cone.n = (t_vec3df){0, 1, 0};
+	tex.color = (t_rgb){0.0, 0.0, 1.0, 1};
+	tex.spe = 800;
+	obj_push(4, &p->obj, &cone, tex);
 	//sp2.pos = (t_vec3df){50, 5.0, 50};
 	//sp2.radius = 3;
 	//sp2.spe = -1;
@@ -109,21 +124,21 @@ void		addsphere(t_param *p)
 	//obj_push(1, &p->obj, &sp2, (t_rgb){0, 255, 0, 255});
 	//obj_push(1, &p->obj, &sp3, (t_rgb){0, 0, 255, 255});
 	//obj_push(1, &p->obj, &sp4, (t_rgb){255, 255, 255, 255});
-	light.pos = (t_vec3df){30.0, 10.0, 30.0};
+	light.pos = (t_vec3df){-30.0, 10.0, 30.0};
 	light.color = (t_rgb){0, 0, 1, 1};
 	light.intensity = .5;
 	light.type = 2;
 	light_push(&p->light, light, p);
 
-	light2.pos = (t_vec3df){50.0, 20.0, 10.0};
+	light2.pos = (t_vec3df){1.0, 0.0, 0.0};
 	light2.color = (t_rgb){1, 1, 1, 1};
 	light2.intensity = 0.1;
-	light2.type = 1;
+	light2.type = 2;
 	light_push(&p->light, light2, p);
 
-	light3.pos = (t_vec3df){-30.0, 20.0, 10.0};
-	light3.color = (t_rgb){0, 1, 0, 1};
-	light3.intensity = 0.5;
+	light3.pos = (t_vec3df){-100.0, 20.0, 0.0};
+	light3.color = (t_rgb){1, 1, 1, 1};
+	light3.intensity = 0.8;
 	light3.type = 2;
 	light_push(&p->light, light3, p);
 }

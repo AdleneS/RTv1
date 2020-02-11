@@ -62,6 +62,14 @@ typedef struct			s_plane
 	struct s_plane		*next;
 }						t_plane;
 
+typedef struct			s_cone
+{
+	struct s_vec3df		pos;
+	struct s_vec3df		n;
+	float				angle;
+	struct s_plane		*next;
+}						t_cone;
+
 typedef struct			s_tex
 {
 	struct s_rgb		color;

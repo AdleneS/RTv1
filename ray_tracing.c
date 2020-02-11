@@ -1,28 +1,32 @@
 #include "rtv1.h"
 
-/*float				inetersect_cone(t_ray *ray, t_object *cone)
+float				intersect_cone(t_vec3df origin, t_vec3df d, t_cone *cone)
 {
-	t_vector3 		var;
+	double			k1;
+	double			k2;
+	double			k3;
+	t_vec3df		l;
 	float			tmp[2];
-	t_vector3		l;
 	float			taN;
+	double			t1;
+	double			t2;
+	double			discriminant;
 
-	taN = tan(cone->shape.angle * M_PI / 180);
-	l = vector_sub(ray->origin, cone->transform.rotation);
-	tmp[0] = vector_dot(ray->direction, cone->transform.rotation);
-	tmp[1] = vector_dot(l, cone->transform.rotation);
-	var.x = vector_dot(ray->direction, ray->direction) -
-			((1 + pow(taN, 2)) * pow(tmp[0], 2));
-	var.y = 2 * (vector_dot(ray->direction, l) -
-			((1 + pow(taN, 2)) * tmp[0] * tmp[1]));
-	var.z = vector_dot(l, l) - (1 + pow(taN, 2) * pow(tmp[1], 2));
-	if (solve_quadratic(var) == 1)
-		{
-			//getsurface(n);
-			return (1);
-	}
-	return (0);
-}*/
+	taN = tan(cone->angle * M_PI / 180);
+	l = v_sub(cone->pos, origin);
+	tmp[0] = v_dotproduct(d, cone->n);
+	tmp[1] = v_dotproduct(l, cone->n);
+	k1 = pow(tmp[0], 2) - pow(cos(taN), 2);
+	k2 = 2 * ((tmp[0] * tmp[1]) - v_dotproduct(d, l) * pow(cos(taN), 2));
+	k3 = pow(v_dotproduct(l, cone->n), 2) - v_dotproduct(l, l) * pow(cos(taN), 2);
+	
+	discriminant = k2 * k2 - 4.0 * k1 * k3;
+	if (discriminant < 0)
+		return (-1);
+	t1 = (-k2 + sqrtf(discriminant)) * .5;
+	t2 = (-k2 - sqrtf(discriminant)) * .5;
+	return (fminf(t1, t2));
+}
 
 float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, float max_t)
 {
@@ -138,7 +142,9 @@ t_rgb	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_obj *closest)
 			if (tmp1->type == 2)
 				t = intersect_plane(phit, vec_l, ((t_plane*)tmp1->data));
 			if (tmp1->type == 3)
-				t= -1 ;//intersect_cylinder(phit, vec_l,((t_cylinder*)tmp1->data));
+				t = intersect_cylinder(phit, vec_l, ((t_cylinder*)tmp1->data));
+			if (tmp1->type == 4)
+				t = intersect_cone(phit, vec_l, ((t_cone*)tmp1->data));
 			if (t > 0.001 && t < didis)
 			{
 				hit = 1;
@@ -191,7 +197,9 @@ void		trace_ray(t_param *p, t_vec3df d)
 		if (tmp->type == 2)
 			t = intersect_plane(p->cam.pos, d, ((t_plane*)tmp->data));
 		if (tmp->type == 3)
-			t = intersect_cylinder(p->cam.pos, d,((t_cylinder*)tmp->data));
+			t = intersect_cylinder(p->cam.pos, d, ((t_cylinder*)tmp->data));
+		if (tmp->type == 4)
+			t = intersect_cone(p->cam.pos, d, ((t_cone*)tmp->data));
 		if (t > 0.001 && t < dis)
 		{
 			dis = t;
@@ -210,9 +218,18 @@ void		trace_ray(t_param *p, t_vec3df d)
 			}
 			if (closest->type == 3)
 			{
-				nhit = ((((t_cylinder*)closest->data)->n));
-				if (v_dotproduct(d, ((t_cylinder*)closest->data)->n) > 0)
-					nhit = (v_mulk(nhit, -1));
+				nhit = v_sub(phit, ((t_cylinder*)closest->data)->pos);
+				nhit = v_add(((t_cylinder*)closest->data)->pos, v_mulk(((t_cylinder*)closest->data)->n, v_dotproduct(nhit, ((t_cylinder*)closest->data)->n)));
+				nhit = v_normalize(v_sub(phit, nhit));
+				//nhit = v_mul(nhit, ((t_cylinder*)closest->data)->n);
+			}
+			if (closest->type == 4)
+			{
+				nhit = v_sub(phit, ((t_cone*)closest->data)->pos);
+				nhit = v_add(((t_cone*)closest->data)->pos, v_mulk(((t_cone*)closest->data)->n, v_dotproduct(nhit, ((t_cone*)closest->data)->n)));
+				nhit = v_normalize(v_sub(phit, nhit));
+				nhit = v_add(v_mulk(nhit, cos(tan(((t_cone*)closest->data)->angle * M_PI / 180))), v_mulk(((t_cone*)closest->data)->n, sin(tan(((t_cone*)closest->data)->angle))));
+				//nhit = v_mul(nhit, ((t_cylinder*)closest->data)->n);
 			}
 		}
 		tmp = tmp->next;

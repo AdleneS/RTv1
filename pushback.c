@@ -1,18 +1,5 @@
 #include "rtv1.h"
 
-void		sphere_push(t_sphere **list, t_sphere sp, t_param *p)
-{
-	t_sphere *new;
-
-	if (!(new = malloc(sizeof(t_sphere))))
-		SDL_Error(-1);
-	new->pos = sp.pos;
-	new->radius = sp.radius;
-	//new->color = sp.color;
-	//new->next = !*list ? NULL : *list;
-	*list = new;
-}
-
 void		obj_push(int type, t_obj **list, void *data, t_tex tex)
 {
 	t_obj *new;
@@ -36,18 +23,11 @@ void		obj_push(int type, t_obj **list, void *data, t_tex tex)
 		new->data = malloc(sizeof(t_cylinder));
 		*(t_cylinder*)new->data = *(t_cylinder*)data;
 	}
-	new->next = !*list ? NULL : *list;
-	*list = new;
-}
-
-void		plane_push(t_plane **list, t_plane pl, t_param *p)
-{
-	t_plane *new;
-
-	if (!(new = malloc(sizeof(t_plane))))
-		SDL_Error(-1);
-	new->pos = pl.pos;
-	new->n = pl.n;
+	if (new->type == 4)
+	{
+		new->data = malloc(sizeof(t_cone));
+		*(t_cone*)new->data = *(t_cone*)data;
+	}
 	new->next = !*list ? NULL : *list;
 	*list = new;
 }
