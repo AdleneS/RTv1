@@ -77,10 +77,10 @@ void		addsphere(t_param *p)
 	tex.spe = 800;
 	obj_push(3, &p->obj, &cyn, tex);
 
-	cone.pos = (t_vec3df){-10, 0, -50};
-	cone.angle = 90;
-	cone.n = (t_vec3df){0, 1, 0};
-	tex.color = (t_rgb){0.0, 0.0, 1.0, 1};
+	cone.pos = (t_vec3df){-70, 0, -50};
+	cone.angle = 5.0;
+	cone.n = (t_vec3df){0, 0, 1};
+	tex.color = (t_rgb){1.0, 1.0, 0.5, 1};
 	tex.spe = 800;
 	obj_push(4, &p->obj, &cone, tex);
 	//sp2.pos = (t_vec3df){50, 5.0, 50};
@@ -95,25 +95,25 @@ void		addsphere(t_param *p)
 	pl1.pos = (t_vec3df){0.0, -20.0, 0.0};
 	pl1.n = (t_vec3df){0.0, 1.0, 0.0};
 	tex.color = (t_rgb){1, 1, 0, 1};
-	tex.spe = -1;
+	tex.spe = 800;
 	obj_push(2, &p->obj, &pl1, tex);
 
 	pl1.pos = (t_vec3df){50.0, 0.0, 0.0};
 	pl1.n = (t_vec3df){-1.0, 0.0, 0.0};
 	tex.color = (t_rgb){0.02, 0.8, 0.6, 255};
-	tex.spe = -1;
+	tex.spe = 800;
 	obj_push(2, &p->obj, &pl1, tex);
 
-	pl1.pos = (t_vec3df){-50.0, 0.0, 0.0};
-	pl1.n = (t_vec3df){-1.0, 0.0, 0.0};
+	pl1.pos = (t_vec3df){0.0, 50.0, 0.0};
+	pl1.n = (t_vec3df){0.0, -1.0, 0.0};
 	tex.color = (t_rgb){1, 0.4, 0.01, 255};
 	tex.spe = -1;
-	//obj_push(2, &p->obj, &pl1, tex);
+	obj_push(2, &p->obj, &pl1, tex);
 
 	pl1.pos = (t_vec3df){0.0, 0.0, 75.0};
 	pl1.n = (t_vec3df){0.0, 0.0, -1.0};
 	tex.color = (t_rgb){0.01, 0.2, 0.9, 255};
-	tex.spe = -1;
+	tex.spe = 800;
 	obj_push(2, &p->obj, &pl1, tex);
 	//sphere_push(&p->obj.sp, sp1, p);
 	//sphere_push(&p->obj.sp, sp2, p);
@@ -151,8 +151,8 @@ int main (int argc, char *argv[])
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	p->cam.pos = (t_vec3df){0.0, 0.0, -50.0};
-	p->cam.rot = (t_vec3df){0.0, 0.0, 0.0};
+	p->cam.pos = (t_vec3df){-150.0, 0.0, -50.0};
+	p->cam.rot = (t_vec3df){0.0, 1.5, 0.0};
 	p->sdl.win = SDL_CreateWindow("RTV1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 	p->sdl.ren = SDL_CreateRenderer(p->sdl.win, -1, 0);
 	p->sdl.tex = SDL_CreateTexture(p->sdl.ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);

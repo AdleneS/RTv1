@@ -11,20 +11,19 @@ float				intersect_cone(t_vec3df origin, t_vec3df d, t_cone *cone)
 	double			t1;
 	double			t2;
 	double			discriminant;
-
-	taN = tan(cone->angle * M_PI / 180);
-	l = v_sub(cone->pos, origin);
+	taN = cone->angle * (M_PI / 180);
+	l = v_sub(origin, cone->pos);
 	tmp[0] = v_dotproduct(d, cone->n);
 	tmp[1] = v_dotproduct(l, cone->n);
+
 	k1 = pow(tmp[0], 2) - pow(cos(taN), 2);
-	k2 = 2 * ((tmp[0] * tmp[1]) - v_dotproduct(d, l) * pow(cos(taN), 2));
+	k2 = 2.0 * ((tmp[0] * tmp[1]) - v_dotproduct(d, l) * pow(cos(taN), 2));
 	k3 = pow(v_dotproduct(l, cone->n), 2) - v_dotproduct(l, l) * pow(cos(taN), 2);
-	
 	discriminant = k2 * k2 - 4.0 * k1 * k3;
 	if (discriminant < 0)
 		return (-1);
-	t1 = (-k2 + sqrtf(discriminant)) * .5;
-	t2 = (-k2 - sqrtf(discriminant)) * .5;
+	t1 = (-k2 + sqrtf(discriminant)) / (2 * k1);
+	t2 = (-k2 - sqrtf(discriminant)) / (2 * k1);
 	return (fminf(t1, t2));
 }
 
@@ -47,8 +46,8 @@ float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, f
 	discriminant = k2 * k2 - 4.0 * k1 * k3;
 	if (discriminant < 0)
 		return (-1);
-	t1 = (-k2 + sqrtf(discriminant)) * .5;
-	t2 = (-k2 - sqrtf(discriminant)) * .5;
+	t1 = (-k2 + sqrtf(discriminant)) / (2 * k1);
+	t2 = (-k2 - sqrtf(discriminant)) / (2 * k1);
 	min = fminf(t1, t2);
 	if (min > min_t && min < max_t)
 		return (min);
@@ -228,8 +227,6 @@ void		trace_ray(t_param *p, t_vec3df d)
 				nhit = v_sub(phit, ((t_cone*)closest->data)->pos);
 				nhit = v_add(((t_cone*)closest->data)->pos, v_mulk(((t_cone*)closest->data)->n, v_dotproduct(nhit, ((t_cone*)closest->data)->n)));
 				nhit = v_normalize(v_sub(phit, nhit));
-				nhit = v_add(v_mulk(nhit, cos(tan(((t_cone*)closest->data)->angle * M_PI / 180))), v_mulk(((t_cone*)closest->data)->n, sin(tan(((t_cone*)closest->data)->angle))));
-				//nhit = v_mul(nhit, ((t_cylinder*)closest->data)->n);
 			}
 		}
 		tmp = tmp->next;
@@ -245,7 +242,7 @@ void		trace_ray(t_param *p, t_vec3df d)
 	//{
 	////p->color = mult_color(closest->color, compute_light(p, phit, nhit));
 	//}
-	p->color = mult_color(closest->tex.color, compute_light(p, phit, nhit, closest));
+		p->color = mult_color(closest->tex.color, compute_light(p, phit, nhit, closest));
 	// p->color = closest->color;
 }
 
