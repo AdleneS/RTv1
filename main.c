@@ -77,9 +77,9 @@ void		addsphere(t_param *p)
 	tex.spe = 800;
 	obj_push(3, &p->obj, &cyn, tex);
 
-	cone.pos = (t_vec3df){-70, 0, -50};
+	cone.pos = (t_vec3df){0, 0, -50};
 	cone.angle = 5.0;
-	cone.n = (t_vec3df){0, 0, 1};
+	cone.n = (t_vec3df){0, 0.4, 1};
 	tex.color = (t_rgb){1.0, 1.0, 0.5, 1};
 	tex.spe = 800;
 	obj_push(4, &p->obj, &cone, tex);
@@ -110,7 +110,7 @@ void		addsphere(t_param *p)
 	tex.spe = -1;
 	obj_push(2, &p->obj, &pl1, tex);
 
-	pl1.pos = (t_vec3df){0.0, 0.0, 75.0};
+	pl1.pos = (t_vec3df){0.0, 0.0, 125.0};
 	pl1.n = (t_vec3df){0.0, 0.0, -1.0};
 	tex.color = (t_rgb){0.01, 0.2, 0.9, 255};
 	tex.spe = 800;
