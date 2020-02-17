@@ -47,24 +47,28 @@ void		addsphere(t_param *p)
 
 	sp1.pos = (t_vec3df){0, -5, 0};
 	sp1.radius = 5;
+	sp1.r2 = sp1.radius * sp1.radius;
 	tex.color = (t_rgb){1, 0, 0, 1};
 	tex.spe = 800;
 	obj_push(1, &p->obj, &sp1, tex);
 
 	sp1.pos = (t_vec3df){-20, 0, 45};
 	sp1.radius = 10;
+	sp1.r2 = sp1.radius * sp1.radius;
 	tex.color = (t_rgb){0, 1, 1, 1};
 	tex.spe = -1;
 	obj_push(1, &p->obj, &sp1, tex);
 
 	sp1.pos = (t_vec3df){0, -5, -20};
 	sp1.radius = 10;
+	sp1.r2 = sp1.radius * sp1.radius;
 	tex.color = (t_rgb){0.9, 1.0, 0.2, 1};
 	tex.spe = -1;
 	obj_push(1, &p->obj, &sp1, tex);
 
 	cyn.pos = (t_vec3df){0, 0, -10};
 	cyn.r = 10;
+	cyn.r2 = cyn.r * cyn.r;
 	cyn.n = (t_vec3df){0, 1, 0};
 	tex.color = (t_rgb){0.9, 0.7, 0.9, 1};
 	tex.spe = 800;
@@ -72,6 +76,7 @@ void		addsphere(t_param *p)
 
 	cyn.pos = (t_vec3df){0, 30, 30};
 	cyn.r = 5;
+	cyn.r2 = cyn.r * cyn.r;
 	cyn.n = (t_vec3df){1, 0, 0};
 	tex.color = (t_rgb){1.0, 0.0, 1.0, 1};
 	tex.spe = 800;
@@ -131,7 +136,7 @@ void		addsphere(t_param *p)
 	light_push(&p->light, light, p);
 
 	light2.pos = (t_vec3df){1.0, 0.0, 0.0};
-	light2.color = (t_rgb){1, 1, 1, 1};
+	light2.color = (t_rgb){0, 1, 1, 1};
 	light2.intensity = 0.1;
 	light2.type = 2;
 	light_push(&p->light, light2, p);
@@ -143,7 +148,20 @@ void		addsphere(t_param *p)
 	light_push(&p->light, light3, p);
 }
 
-int main (int argc, char *argv[])
+void	screen_clear(t_param *p)
+{
+	int x;
+	int y;
+
+	x = -1;
+	y = -1;
+	p->color = (t_rgb){0,0,0,0};
+	while (++x < WIDTH && (y = -1))
+		while (++y < HEIGHT)
+			ft_pixel_put(p, x, y);
+}
+
+int		main (int argc, char *argv[])
 {
 	t_param			*p;
 	t_vec3df		move;
@@ -158,7 +176,7 @@ int main (int argc, char *argv[])
 	p->sdl.tex = SDL_CreateTexture(p->sdl.ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 	p->sdl.pixels = malloc(sizeof(uint32_t) * WIDTH * HEIGHT);
 	p->light = NULL;
-	//p->obj.sp = NULL;
+	p->moving = 1;
 	p->obj = NULL;
 	SDL_Event	event;
 	addsphere(p);
@@ -167,6 +185,9 @@ int main (int argc, char *argv[])
 	while (1)
 	{
 		const Uint8 *state = SDL_GetKeyboardState(NULL);
+		screen_clear(p);
+		multithreads(p);
+		p->moving = 1;
 		if (SDL_PollEvent(&event))
 		{
 			move = (t_vec3df){0.0, 0.0, 0.0};
@@ -197,12 +218,12 @@ int main (int argc, char *argv[])
 				if (state[SDL_SCANCODE_Q])
 					p->cam.rot = v_add(p->cam.rot, (t_vec3df){0, -0.05, 0});
 			}
+			p->moving = 10;
 			rot_x(p, &move);
 			rot_y(p, &move);
 			p->cam.pos = v_add(p->cam.pos, move);
 		}
 		//ray_tracing(p);
-		multithreads(p);
 		SDL_UpdateTexture(p->sdl.tex, NULL, p->sdl.pixels, WIDTH * 4);
 		//SDL_UnlockTexture(p->sdl.tex);
 		//SDL_SetRenderTarget(p->sdl.ren, p->sdl.tex);

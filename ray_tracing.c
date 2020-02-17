@@ -26,62 +26,43 @@ float				intersect_cone(t_vec3df origin, t_vec3df d, t_cone *cone)
 	return (fminf(t1, t2));
 }
 
-float	intersect_sphere(t_vec3df origin, t_vec3df d, t_sphere *sp, float min_t, float max_t)
+double	solve_quadratic(t_quadratic q)
 {
-	t_vec3df	oc;
-	double		k1;
-	double		k2;
-	double		k3;
-	double		t1;
-	double		t2;
-	double		discriminant;
-	double		min;
-
-	oc = v_sub(origin, sp->pos);
-	k1 = v_dotproduct(d, d);
-	k2 = 2 * v_dotproduct(oc, d);
-	k3 = v_dotproduct(oc, oc) - (sp->radius * sp->radius);
-
-	discriminant = k2 * k2 - 4.0 * k1 * k3;
-	if (discriminant < 0)
-		return (-1);
-	t1 = (-k2 + sqrtf(discriminant)) / (2 * k1);
-	t2 = (-k2 - sqrtf(discriminant)) / (2 * k1);
-	min = fminf(t1, t2);
-	if (min > min_t && min < max_t)
-		return (min);
-	else
-		return (-1);
-	
+	q.t1 = (-q.b + sqrtf(q.disc)) / (2 * q.a);
+	q.t2 = (-q.b - sqrtf(q.disc)) / (2 * q.a);
+	return (fminf(q.t1, q.t2));
 }
 
-float	intersect_cylinder(t_vec3df raypos, t_vec3df d, t_cylinder *cyn)
+float	intersect_sphere(t_param *p, t_vec3df origin, t_vec3df d, t_sphere *sp)
 {
-	t_vec3df	oc;
-	double		k1;
-	double		k2;
-	double		k3;
-	double		t1;
-	double		t2;
-	double		discriminant;
-	double		min;
-	double		dot1;
-	double		dot2;
-	
-	oc = v_sub(raypos, cyn->pos);
-	dot1 = v_dotproduct(d, v_normalize(cyn->n));
-	dot2 = v_dotproduct(oc, cyn->n);
-	k1 = v_dotproduct(d, d) - pow(dot1, 2);
-	k2 = 2 * (v_dotproduct(d, oc) - (dot1 * dot2));
-	k3 = v_dotproduct(oc, oc) - pow(dot2, 2) - pow(cyn->r, 2);
+	t_quadratic q;
 
-	discriminant = k2 * k2 - 4.0 * k1 * k3;
-	if (discriminant < 0)
+	q.oc = v_sub(origin, sp->pos);
+	q.a = p->dd;
+	q.b = 2 * v_dotproduct(q.oc, d);
+	q.c = v_dotproduct(q.oc, q.oc) - sp->r2;
+
+	q.disc = q.b * q.b - 4.0 * q.a * q.c;
+	if (q.disc < 0)
 		return (-1);
-	t1 = (-k2 + sqrtf(discriminant)) / (2 * k1);
-	t2 = (-k2 - sqrtf(discriminant)) / ( 2 * k1);
-	min = fminf(t1, t2);
-	return (min);
+	return (solve_quadratic(q));
+}
+
+float	intersect_cylinder(t_param *p, t_vec3df origin, t_vec3df d, t_cylinder *cyn)
+{
+	t_quadratic	q;
+
+	q.oc = v_sub(origin, cyn->pos);
+	q.dot1 = v_dotproduct(d, v_normalize(cyn->n));
+	q.dot2 = v_dotproduct(q.oc, cyn->n);
+	q.a = p->dd - q.dot1 * q.dot1;
+	q.b = 2 * (v_dotproduct(d, q.oc) - (q.dot1 * q.dot2));
+	q.c = v_dotproduct(q.oc, q.oc) - q.dot2 * q.dot2 - cyn->r2;
+
+	q.disc = q.b * q.b - 4.0 * q.a * q.c;
+	if (q.disc < 0)
+		return (-1);
+	return (solve_quadratic(q));
 }
 
 float		intersect_plane(t_vec3df raypos, t_vec3df d, t_plane *pl)
@@ -136,11 +117,11 @@ t_rgb	compute_light(t_param *p, t_vec3df phit, t_vec3df nhit, t_obj *closest)
 		while (tmp1)
 		{
 			if (tmp1->type == 1)
-				t = intersect_sphere(phit, vec_l, ((t_sphere*)tmp1->data), 0, INFINITY);
+				t = intersect_sphere(p, phit, vec_l, ((t_sphere*)tmp1->data));
 			if (tmp1->type == 2)
 				t = intersect_plane(phit, vec_l, ((t_plane*)tmp1->data));
 			if (tmp1->type == 3)
-				t = intersect_cylinder(phit, vec_l, ((t_cylinder*)tmp1->data));
+				t = intersect_cylinder(p, phit, vec_l, ((t_cylinder*)tmp1->data));
 			if (tmp1->type == 4)
 				t = intersect_cone(phit, vec_l, ((t_cone*)tmp1->data));
 			if (t > 0.001 && t < didis)
@@ -191,11 +172,11 @@ void		trace_ray(t_param *p, t_vec3df d)
 	{
 
 		if (tmp->type == 1)
-			t = intersect_sphere(p->cam.pos, d, ((t_sphere*)tmp->data), 0, INFINITY);
+			t = intersect_sphere(p, p->cam.pos, d, ((t_sphere*)tmp->data));
 		if (tmp->type == 2)
 			t = intersect_plane(p->cam.pos, d, ((t_plane*)tmp->data));
 		if (tmp->type == 3)
-			t = intersect_cylinder(p->cam.pos, d, ((t_cylinder*)tmp->data));
+			t = intersect_cylinder(p, p->cam.pos, d, ((t_cylinder*)tmp->data));
 		if (tmp->type == 4)
 			t = intersect_cone(p->cam.pos, d, ((t_cone*)tmp->data));
 		if (t > 0.001 && t < dis)
@@ -256,6 +237,18 @@ void		lala2(t_vec3df *d, float ratio)
 	*d = v_normalize(*d);
 }
 
+void		fill_pixel(t_param *p, int x, int y)
+{
+	int		i;
+	int		j;
+
+	i = x - 1;
+	j = y - 1;
+	while (++i < x + p->moving && (j = y - 1))
+		while (++j < y + p->moving)
+			ft_pixel_put(p, i, j);
+}
+
 void		*ray_tracing(void *pvoid)
 {
 	int			x;
@@ -275,18 +268,22 @@ void		*ray_tracing(void *pvoid)
 			// d = (t_vec3df){x * (double)RATIO / WIDTH, y * 1.0 / HEIGHT, 1.0};
 
 			// d = (t_vec3df){x * 1.0 / WIDTH, y * 1.0 / HEIGHT, 1.0};
+			
 			d.x = x;
 			d.y = y;
 			d.z = 1;
 			lala2(&d, ratio);
 			rot_x(p, &d);
 			rot_y(p, &d);
+			p->dd = v_dotproduct(d, d);
 			trace_ray(p, d);
+			if (p->moving > 1)
+				fill_pixel(p, x, y);
 			ft_pixel_put(p, x, y);
 			//SDL_RenderDrawPoint(p->sdl.ren, x, y);
-			y++;
+			y += p->moving;
 		}
-		x++;
+		x += p->moving;
 	}
 	return (p);
 }

@@ -34,6 +34,19 @@ typedef struct			s_vec3df
 	double				z;
 }						t_vec3df;
 
+typedef struct			s_quadratic
+{
+	t_vec3df			oc;
+	double				a;
+	double				b;
+	double				c;
+	double				disc;
+	double				t1;
+	double				t2;
+	double				dot1;
+	double				dot2;
+}						t_quadratic;
+
 typedef struct			s_rgb
 {
 	float				r;
@@ -46,6 +59,7 @@ typedef struct			s_sphere
 {
 	struct s_vec3df		pos;
 	double				radius;
+	double				r2;
 }						t_sphere;
 
 typedef struct			s_cylinder
@@ -53,6 +67,7 @@ typedef struct			s_cylinder
 	struct s_vec3df		pos;
 	struct s_vec3df		n;
 	double				r;
+	double				r2;
 }						t_cylinder;
 
 typedef struct			s_plane
@@ -82,6 +97,7 @@ typedef struct			s_obj
 	struct s_tex		tex;
 	void				*data;
 	struct s_obj		*next;
+	t_vec3df			oc;
 	//struct s_sphere		*sp;
 	//struct s_plane		*pl;
 }						t_obj;
@@ -132,6 +148,8 @@ typedef struct			s_param
 	struct s_cam		cam;
 	int					th_i;
 	int					th_imax;
+	double				dd;
+	int					moving;
 	struct s_obj		*obj;
 	struct s_light		*light;
 }						t_param;

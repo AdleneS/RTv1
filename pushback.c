@@ -8,6 +8,7 @@ void		obj_push(int type, t_obj **list, void *data, t_tex tex)
 		SDL_Error(-1);
 	new->type = type;
 	new->tex = tex;
+	new->oc = (t_vec3df){-1, -1, -1};
 	if (new->type == 1)
 	{
 		new->data = malloc(sizeof(t_sphere));
